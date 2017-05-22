@@ -15,6 +15,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import FastClick from 'fastclick';
 import { Provider } from 'react-redux';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import { cyanA200, cyanA400, cyanA700 } from 'material-ui/styles/colors';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+import { persistStore } from 'redux-persist';
+import localforage from 'localforage';
+import configureStorage from './storage';
 
 import store from './store';
 import router from './router';
@@ -22,10 +29,45 @@ import history from './history';
 
 let routes = require('./routes.json').default; // Loaded with utils/routes-loader.js
 
+const muiTheme = getMuiTheme({
+  palette: {
+    // primary1Color: cyanA400,
+    // primary2Color: cyanA700,
+    // primary3Color: cyanA700,
+  },
+}, {
+  avatar: {
+    borderColor: null,
+  },
+});
+
+injectTapEventPlugin();
 const container = document.getElementById('container');
 
+const onRehydrate = () => {
+    // Don't import appStarted action creator since it would break hot reload.
+  store.dispatch(({ type: 'APP_STARTED' }));
+};
+
+const afterInitialRender = () => {
+  persistStore(
+      store,
+    {
+      ...configureStorage('tweet-map'),
+      storage: localforage,
+    },
+      onRehydrate,
+    );
+};
+
 function renderComponent(component) {
-  ReactDOM.render(<Provider store={store}>{component}</Provider>, container);
+  const wrappedComp = (
+    <MuiThemeProvider muiTheme={muiTheme}>
+      {component}
+    </MuiThemeProvider>
+  );
+
+  ReactDOM.render(<Provider store={store}>{wrappedComp}</Provider>, container, afterInitialRender);
 }
 
 // Find and render a web page matching the current URL path,
@@ -38,8 +80,10 @@ function render(location) {
 
 // Handle client-side navigation by using HTML5 History API
 // For more information visit https://github.com/ReactJSTraining/history/tree/master/docs#readme
-history.listen(render);
-render(history.location);
+// history.listen(render);
+// console.log(history.location);
+// render(history.location);
+render({ pathname: '/' });
 
 // Eliminates the 300ms delay between a physical tap
 // and the firing of a click event on mobile browsers

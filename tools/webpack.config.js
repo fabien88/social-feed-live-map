@@ -14,6 +14,7 @@ const path = require('path');
 const webpack = require('webpack');
 const AssetsPlugin = require('assets-webpack-plugin');
 const pkg = require('../package.json');
+// const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 const isDebug = global.DEBUG === false ? false : !process.argv.includes('--release');
 const isVerbose = process.argv.includes('--verbose') || process.argv.includes('-v');
@@ -44,8 +45,8 @@ const config = {
   output: {
     path: path.resolve(__dirname, '../public/dist'),
     publicPath: isDebug ? `http://localhost:${process.env.PORT || 3000}/dist/` : '/dist/',
-    filename: isDebug ? '[name].js?[hash]' : '[name].[hash].js',
-    chunkFilename: isDebug ? '[id].js?[chunkhash]' : '[id].[chunkhash].js',
+    filename: isDebug ? '[name].js?[hash]' : '[name].js',
+    chunkFilename: isDebug ? '[id].js?[chunkhash]' : '[id].js',
     sourcePrefix: '  ',
   },
 
@@ -96,6 +97,7 @@ const config = {
         ],
         loader: 'babel-loader',
         options: babelConfig,
+        exclude: /node_modules/,
       },
       {
         test: /\.css/,

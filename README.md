@@ -1,3 +1,5 @@
+Before building, delete node_modules/react-tweet-embed/dist/tweet-embed.es.js
+
 # React Static Boilerplate &nbsp; <a href="https://travis-ci.org/kriasoft/react-static-boilerplate"><img src="http://img.shields.io/travis/kriasoft/react-static-boilerplate/master.svg?style=flat-square" height="20" /></a> <a href="https://github.com/kriasoft/react-static-boilerplate/stargazers"><img src="https://img.shields.io/github/stars/kriasoft/react-static-boilerplate.svg?style=social&label=Star&maxAge=3600" height="20"></a> <a href="https://twitter.com/ReactStatic"><img src="https://img.shields.io/twitter/follow/ReactStatic.svg?style=social&label=Follow&maxAge=3600" height="20"></a>
 
 [**React Static Boilerplate**](https://github.com/kriasoft/react-static-boilerplate) (RSB) is a
@@ -117,7 +119,7 @@ $ yarn test                     # Run unit tests. Or, `yarn run test:watch`
 
 Update `publish` script in the [`tools/publish.js`](tools/publish.js) file with your full Firebase
 project name as found in your [Firebase console](https://console.firebase.google.com/). Note that
-this may have an additional identifier suffix than the shorter name you've provided. Then run: 
+this may have an additional identifier suffix than the shorter name you've provided. Then run:
 
 ```shell
 $ yarn run publish                  # Builds and deployes the app to Firebase
