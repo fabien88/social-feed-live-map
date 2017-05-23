@@ -2,7 +2,6 @@
 import React from 'react';
 import GoogleMap from './GoogleMap';
 
-
 class SocialMapPage extends React.Component {
 
   render() {

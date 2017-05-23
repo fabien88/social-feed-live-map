@@ -10,6 +10,13 @@ export const onPointsReceived = (snaps) => {
     payload: { points },
   };
 };
+export const onMessagesReceived = (snaps) => {
+  const messages = snaps;
+  return {
+    type: 'ON_MESSAGES_RECEIVED',
+    payload: { messages },
+  };
+};
 
 export const setOverMarker = markerId => ({
   type: 'ON_SET_MARKER_OVER',
@@ -21,11 +28,25 @@ export const setActiveMarker = markerId => ({
   payload: { markerId },
 });
 
+export const flipForm = () => ({
+  type: 'ON_FLIP_FORM',
+  payload: { },
+});
 
-export const queryFirebase = lastPointTs => ({ firebase, getState, dispatch }) => {
+export const onShowThankYou = () => ({
+  type: 'ON_SHOW_THANK_YOU',
+  payload: { },
+});
+
+export const setMyPos = ({ lat, lng }) => ({
+  type: 'ON_MY_POS_UPDATE',
+  payload: { lat, lng },
+});
+
+export const queryFirebasePoints = lastPointTs => ({ firebase, dispatch }) => {
   const ref = firebase
         .child('tags/defidemalade/points')
-        .orderByChild('ts')
+        .orderByChild('createdAt')
         .startAt(lastPointTs + 1)
         .limitToLast(1000);
   const childsAdded = Observable.fromEvent(ref, 'child_added');
@@ -40,5 +61,27 @@ export const queryFirebase = lastPointTs => ({ firebase, getState, dispatch }) =
   return {
     type: 'ON_LAST_POINTS_WATCH',
     payload: { lastPointTs },
+  };
+};
+
+
+export const queryFirebaseMessages = lastMessageTs => ({ firebase, dispatch }) => {
+  const ref = firebase
+        .child('tags/defidemalade/messages')
+        .orderByChild('createdAt')
+        .startAt(lastMessageTs + 1)
+        .limitToLast(1000);
+  const childsAdded = Observable.fromEvent(ref, 'child_added');
+  const buffered = childsAdded.bufferTime(500);
+  buffered.subscribe((vals) => {
+    if (vals.length === 0) {
+      return;
+    }
+    dispatch(onMessagesReceived(vals.map(snap => snap.val())));
+  });
+
+  return {
+    type: 'ON_LAST_MESSAGE_WATCH',
+    payload: { lastMessageTs },
   };
 };

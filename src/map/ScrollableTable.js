@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { setOverMarker, setActiveMarker } from '../actions';
 import ItemTable from './ItemTable';
 import ReactList from 'react-list';
-import Acclaim from './Acclaim';
+import { AcclaimIntro } from './Acclaim';
 
 class ScrollableTable extends React.Component {
   state= {
@@ -20,23 +20,20 @@ class ScrollableTable extends React.Component {
 
   renderItem = (index, key) => {
     if (index === 0) {
-      return (
-        <Acclaim key={key} onClick={this.props.onFlip} />
-      );
-    } else if (index === 1) {
       return <ItemTable key={key} marker={{}} markers={this.props.markers} />;
     }
-    return <ItemTable key={key} marker={this.props.markers[index - 2]} />;
+    return <ItemTable key={key} marker={this.props.markers[index - 1]} />;
   }
 
   render() {
     const { markers, width } = this.props;
 
     return (
-      <div style={{ width }}>
+      <div>
+        <AcclaimIntro onClick={this.props.onFlip} />
         <ReactList
           itemRenderer={this.renderItem}
-          length={markers.length + 2}
+          length={markers.length + 1}
             // minSize={10}
           type="simple"
           ref={c => this.list = c}

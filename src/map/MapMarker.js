@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Animate } from 'react-move';
 import { setOverMarker, setActiveMarker } from '../actions';
 
-
 const easingFunc = (t, s = 5) => --t * t * ((s + 1) * t + s) + 1;
 
 
@@ -19,17 +18,12 @@ class MapMarker extends React.Component {
   //   this.setState({ activeMarker: marker });
   // }
 
-  getIcon = (iconUrl, upScale) => ({
-    scaledSize: new window.google.maps.Size(upScale ? 55 : 30, upScale ? 55 : 30),
-    url: iconUrl,
-    style: 'border:5px solid black',
-  });
 
   render() {
     const { position, id, iconUrl, overed, ts } = this.props;
     return (
       <Animate
-        data={{ scale: overed ? 55 : 30 }}
+        data={{ scale: overed ? 70 : 50 }}
         duration={200}
         easing={easingFunc}
       >
@@ -38,7 +32,7 @@ class MapMarker extends React.Component {
             position={position}
             key={id}
             defaultAnimation={4}
-            optimized={false}
+            optimized
             icon={{
               scaledSize: new window.google.maps.Size(data.scale, data.scale),
               url: iconUrl,

@@ -6,6 +6,7 @@ import { pick } from 'ramda';
 const paths = [
   ['points'],
   ['lastPointTs'],
+  ['lastMessageTs'],
 ];
 
 const transforms = [];

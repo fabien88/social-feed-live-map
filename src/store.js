@@ -25,6 +25,10 @@ const initialState = {
   overedMarkerId: null,
   activeMarkerId: null,
   lastPointTs: 0,
+  lastMessageTs: 0,
+  showForm: false,
+  myPos: null,
+  showThankYou: false,
 };
 
 let firebaseDeps = null;
@@ -88,6 +92,8 @@ const store = createStore((state = initialState, action) => {
   switch (action.type) {
     case 'APP_STARTED':
       return { ...state, started: true };
+    case 'ON_SHOW_THANK_YOU':
+      return { ...state, showThankYou: true };
 
     case 'ON_POINTS_RECEIVED': {
       const { points } = action.payload;
@@ -98,7 +104,7 @@ const store = createStore((state = initialState, action) => {
       const newPoints = [];
 
       points.forEach((point) => {
-        lastPointTs = Math.max(lastPointTs, point.ts);
+        lastPointTs = Math.max(lastPointTs, point.createdAt);
         if (!R.find(R.propEq('id', point.id))(state.points)) {
           newPoints.push(point);
         } else {
@@ -111,6 +117,31 @@ const store = createStore((state = initialState, action) => {
         points: [...state.points, ...newPoints],
       };
     }
+
+    case 'ON_MESSAGES_RECEIVED': {
+      const { messages } = action.payload;
+      if (!messages) {
+        return { ...state };
+      }
+      let lastMessageTs = state.lastPointTs;
+      const newMessages = [];
+
+      messages.forEach((message) => {
+        lastMessageTs = Math.max(lastMessageTs, message.createdAt);
+        if (!R.find(R.propEq('id', message.id))(state.points)) {
+          newMessages.push(message);
+        } else {
+          console.log('Duplicate found');
+        }
+      });
+
+      return { ...state,
+        lastMessageTs,
+        points: [...state.points, ...newMessages], // Merge messages with points
+      };
+    }
+
+
     case 'ON_SET_MARKER_OVER': {
       const { markerId } = action.payload;
       return { ...state, overedMarkerId: markerId };
@@ -118,6 +149,13 @@ const store = createStore((state = initialState, action) => {
     case 'ON_SET_MARKER_ACTIVE': {
       const { markerId } = action.payload;
       return { ...state, activeMarkerId: markerId };
+    }
+    case 'ON_FLIP_FORM': {
+      return { ...state, showForm: !state.showForm, myPos: null }; // Also reset user geo position in form
+    }
+    case 'ON_MY_POS_UPDATE': {
+      const { lat, lng } = action.payload;
+      return { ...state, myPos: { lat, lng } };
     }
 
     default:

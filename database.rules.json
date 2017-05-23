@@ -1,6 +1,20 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "tags": {
+      "$tag": {
+        "points": {
+          ".read": "true",
+          ".indexOn": [
+            "createdAt"
+          ]
+        },
+        "messages": {
+          ".read": "true",
+          ".indexOn": [
+            "createdAt"
+          ]
+        }
+      }
+    }
   }
 }

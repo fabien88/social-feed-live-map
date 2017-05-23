@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import TweetEmbed from 'react-tweet-embed';
 import { setOverMarker, setActiveMarker } from '../actions';
 
-const MarkerContent = ({ id, type, ts, profile, userId, message }) => {
+const MarkerContent = ({ id, type, ts, profile, userId, message, name }) => {
   if (type === 'twitter') {
     return (
       <div>
@@ -12,16 +12,16 @@ const MarkerContent = ({ id, type, ts, profile, userId, message }) => {
       </div>
 
     );
+    return null;
   }
-  if (type === 'cheering') {
+  if (type === 'message') {
     return (
       <div>
-        <img src={profile} /> {userId}        a lancé un encouragement :
+        {name}        a lancé un encouragement :
         <div>
           {message}
         </div>
       </div>
-
     );
   }
 };
