@@ -54,7 +54,7 @@ class ItemTable extends React.Component {
     );
   }
 }
-
+export { MarkerContent };
 export default connect((state, props) => ({
   overed: state.overedMarkerId === props.marker.id,
   active: state.activeMarkerId === props.marker.id,

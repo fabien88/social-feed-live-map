@@ -115,7 +115,7 @@ class GoogleMapWrapper extends React.Component {
   }
 
   getGeoUserMarkers(props) {
-    const markers = R.sortBy(R.prop('ts'))(R.concat(this.state.cheers, props.points || []));
+    const markers = R.sortBy(R.prop('ts'))(props.points);
     if (!markers) {
       return { geoUserToMarkers: {}, geoUserToPosition: {}, length: 0 };
     }
@@ -197,15 +197,6 @@ class GoogleMapWrapper extends React.Component {
         <div style={{ ...styles.card, position: mobile ? 'relative' : 'absolute', height: '90vh' }} >
           <SideCard mobile={mobile} markers={markers} />
         </div>
-        {/* <div
-  onClick={() => this.setState({ cheers: [...this.state.cheers, {
-            type: 'cheering',
-            id: Date.now(),
-            profile: 'https://pbs.twimg.com/profile_images/640082816924057600/rq08l0ld_normal.png',
-            userId: 'fabien',
-            ts: Date.now(),
-            message: `${Date.now()}Allez Brian !`,
-          }] })}>Add</div> */}
       </div>
     );
 
