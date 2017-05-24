@@ -29,6 +29,7 @@ const initialState = {
   showForm: false,
   myPos: null,
   showThankYou: false,
+  animationDuration: 5000,
 };
 
 let firebaseDeps = null;
@@ -134,9 +135,16 @@ const store = createStore((state = initialState, action) => {
           console.log('Duplicate found');
         }
       });
+      let { activeMarkerId, animationDuration } = state;
+      if (messages.length === 1) {
+        activeMarkerId = messages[0].id;
+        animationDuration = 1000;
+      }
 
       return { ...state,
         lastMessageTs,
+        activeMarkerId,
+        animationDuration,
         points: [...state.points, ...newMessages], // Merge messages with points
       };
     }

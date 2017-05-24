@@ -31,13 +31,13 @@ class ScrollableTable extends React.Component {
     return (
       <div>
         <AcclaimIntro onClick={this.props.onFlip} />
-        <ReactList
+        {/* <ReactList
           itemRenderer={this.renderItem}
           length={markers.length + 1}
             // minSize={10}
           type="simple"
           ref={c => this.list = c}
-        />
+        /> */}
       </div>
     );
   }

@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import GoogleMap from './GoogleMap';
+import FacebookProvider, { EmbeddedPost, Parser } from 'react-facebook';
 
 class SocialMapPage extends React.Component {
 
@@ -9,7 +10,9 @@ class SocialMapPage extends React.Component {
       <div
         style={{ height: '600px', width: '100%' }}
       >
+
         <GoogleMap />
+
       </div>
     );
   }

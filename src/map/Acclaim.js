@@ -1,5 +1,7 @@
 import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
+import { InfoWindow } from 'react-google-maps';
+
 import Divider from 'material-ui/Divider';
 import TextField from 'material-ui/TextField';
 import { connect } from 'react-redux';
@@ -22,6 +24,7 @@ const styles = {
     color: '#26B8D0',
     textTransform: 'uppercase',
     fontWeight: 200,
+    lineHeight: 0.5,
     fontSize: 25,
   },
   center: {
@@ -37,7 +40,30 @@ const styles = {
     paddingLeft: 60,
     paddingRight: 60,
   },
+  title: {
+    paddingTop: 30,
+    textAlign: 'center',
+  },
 };
+const CursorWindowW = ({ myPos }) => {
+  if (myPos) {
+    // We don't show the dialog if pos changed
+    return null;
+  }
+  return (
+    <InfoWindow >
+      <div style={{ maxWidth: 200, textAlign: 'center', padding: 10 }}>
+        Faites glisser le curseur bleu pour vous localiser sur la carte
+      </div>
+    </InfoWindow>
+  );
+};
+
+const CursorWindow = connect(({ myPos }) => ({
+  myPos,
+}))(CursorWindowW);
+export { CursorWindow };
+
 const AcclaimIntroW = ({ onClick, showThankYou }) => {
   if (showThankYou) {
     return (<div>
@@ -45,8 +71,12 @@ const AcclaimIntroW = ({ onClick, showThankYou }) => {
     </div>);
   }
   return (
-    <div>
-      <h2 style={styles.h2} >Cours brian, Cours !</h2>
+    <div style={{ paddingLeft: 20, paddingRight: 20 }}>
+      <div style={styles.title}>
+        <img width={100} src="https://d1vfuujltsw10o.cloudfront.net/icons/megaphone_defiRespire.png" alt="megaphone" />
+        <h2 style={styles.h2} >Cours brian,</h2>
+        <h2 style={styles.h2}>Cours !</h2>
+      </div>
       <p>Brian arrive à Paris, et aura déjà parcouru plus de 900km.</p>
       <p>Pour l&apos;encourager dans cette dernière ligne droite jusqu&apos;à
            Calais, vous pouvez le soutenir symboliquement dès maintenant
@@ -55,7 +85,6 @@ const AcclaimIntroW = ({ onClick, showThankYou }) => {
       <div style={styles.btn}>
         <RaisedButton primary label="J'encourage Brian" onClick={onClick} />
       </div>
-      <Divider style={{ marginTop: 20, marginBottom: 20 }} />
     </div>
   );
 };

@@ -1,29 +1,70 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import TweetEmbed from 'react-tweet-embed';
+import nl2br from 'react-nl2br';
+import FacebookProvider, { EmbeddedPost, Parser } from 'react-facebook';
+
 import { setOverMarker, setActiveMarker } from '../actions';
 
-const MarkerContent = ({ id, type, ts, profile, userId, message, name }) => {
-  if (type === 'twitter') {
+const styles = {
+  profile: {
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  markerInfo: {
+    fontSize: 16,
+    width: 300,
+    paddingLeft: 10,
+    paddingTop: 10,
+  },
+};
+const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, userName }) => {
+  if (type === 'tweet' || type === 'retweet') {
     return (
-      <div>
-        <img src={profile} /> {id} {new Date(ts).toString()}        A tweeté :
+      <div style={{ ...styles.markerInfo, minHeight: 400 }}>
+        <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
         <TweetEmbed key={id} id={id} />
       </div>
 
     );
-    return null;
+  }
+  if (type === 'fb') {
+    return (
+      <div style={{ ...styles.markerInfo, minHeight: 400 }}>
+        {/* <div style={{ paddingBottom: 10 }}>
+          {userName.split(' ').slice(0, 1).join(' ')}          a commenté sur Facebook   : {message}
+        </div> */}
+        <FacebookProvider appId="296344554144830" language="fr_FR">
+          <EmbeddedPost href={postUrl} width={300} />
+        </FacebookProvider>
+
+        <FacebookProvider appId="296344554144830" language="fr_FR" >
+          <Parser>
+            <div
+              className="fb-comment-embed"
+              data-href={`${postUrl}/?comment_id=${id}`}
+              data-width={300}
+            />
+          </Parser>
+        </FacebookProvider>
+
+      </div>
+    );
   }
   if (type === 'message') {
     return (
       <div>
-        {name}        a lancé un encouragement :
-        <div>
-          {message}
+
+        <div style={{ paddingRight: 50, paddingTop: 10, paddingLeft: 5 }}>
+          {nl2br(message)}
+        </div>
+        <div style={{ paddingTop: 10, textAlign: 'right' }}>
+          {name}
         </div>
       </div>
     );
   }
+  return null;
 };
 
 

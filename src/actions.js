@@ -48,7 +48,7 @@ export const queryFirebasePoints = lastPointTs => ({ firebase, dispatch }) => {
         .child('tags/defidemalade/points')
         .orderByChild('createdAt')
         .startAt(lastPointTs + 1)
-        .limitToLast(1000);
+        .limitToLast(10000);
   const childsAdded = Observable.fromEvent(ref, 'child_added');
   const buffered = childsAdded.bufferTime(500);
   buffered.subscribe((vals) => {

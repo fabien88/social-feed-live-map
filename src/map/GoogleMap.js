@@ -1,5 +1,5 @@
 import React from 'react';
-import { withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
+import { withGoogleMap, GoogleMap, Marker, InfoWindow } from 'react-google-maps';
 import withScriptjs from 'react-google-maps/lib/async/withScriptjs';
 import { connect } from 'react-redux';
 import MediaQuery from 'react-responsive';
@@ -8,16 +8,31 @@ import R from 'ramda';
 import MapMarker from './MapMarker';
 import { setActiveMarker, queryFirebaseMessages, queryFirebasePoints, flipForm, setMyPos } from '../actions';
 import SideCard from './SideCard';
-
+import { CursorWindow } from './Acclaim';
 const mapStyles = require('./GoogleMapStyle.json');
 
-const humanIcons = [1, 2, 3, 4, 5].map(idx => `https://s3-us-west-2.amazonaws.com/defi-respire/icons/Encouragement_Homme_DefiRespire${idx}.png`);
+const CDN = 'https://d1vfuujltsw10o.cloudfront.net';
+const ICON_CDN = `${CDN}/icons`;
+
+const humanIcons = [1, 2, 3, 4, 5].map(idx => `${ICON_CDN}/Encouragement_Homme_DefiRespire${idx}.png`);
 const getRandomIcon = () => humanIcons[Math.round(Math.random() * (humanIcons.length - 1))];
 
 const styles = {
   card: {
     left: 20,
     top: 10,
+  },
+  bottomCard: {
+    paddingTop: 30,
+    textAlign: 'center',
+    width: 350,
+    left: 20,
+    bottom: 10,
+    backgroundColor: 'white',
+    overflow: 'auto',
+    padding: 20,
+    boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+    borderRadius: 2,
   },
   socialBox: {
     backgroundColor: 'white',
@@ -37,12 +52,12 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos }) => {
+let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration }) => {
   const markersRender = (
     <Animate
       default={{ length: 0 }}
       data={{ length: markers.length }}
-      duration={5000}
+      duration={animationDuration}
       easing="easeCubicInOut"
     >
       {data =>
@@ -69,9 +84,15 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos }) => 
           key="geoloc"
           position={{ lat: 46.8, lng: 2.43 }}
           draggable
+          icon={{
+            url: `${ICON_CDN}/Geolocalisation.png`,
+            scaledSize: new window.google.maps.Size(50, 50),
+          }}
           onDragEnd={e => setMyPos({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
           onDrag={e => setMyPos({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
-        />
+        >
+          <CursorWindow />
+        </Marker>
         :
         markersRender
       }
@@ -79,8 +100,9 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos }) => 
   );
 };
 
-GoogleMapComp = connect(state => ({
-  showForm: state.showForm,
+GoogleMapComp = connect(({ animationDuration, showForm }) => ({
+  showForm,
+  animationDuration,
 }), {
   setMyPos,
 })(GoogleMapComp);
@@ -96,42 +118,18 @@ class GoogleMapWrapper extends React.Component {
   };
 
   flattenGeoUserMarkers = (props) => {
-    const { geoUserToMarkers, geoUserToPosition } = this.getGeoUserMarkers(props);
-    const markers = [];
-    Object.keys(geoUserToMarkers).forEach((geoUserKey) => {
-      const userMarkers = geoUserToMarkers[geoUserKey];
-      const userPosition = geoUserToPosition[geoUserKey];
-      userMarkers.forEach((marker, i) => {
-        markers.push(
-          {
-            ...marker,
-            runIcon: getRandomIcon(),
-            position: { lat: userPosition.lat, lng: userPosition.lng + 0.001 * (userMarkers.length - i - 1) },
-          },
-        );
-      });
-    });
-    return R.sortBy(R.prop('ts'))(markers);
-  }
-
-  getGeoUserMarkers(props) {
-    const markers = R.sortBy(R.prop('ts'))(props.points);
-    if (!markers) {
-      return { geoUserToMarkers: {}, geoUserToPosition: {}, length: 0 };
-    }
-    const geoUserToMarkers = { };
-    const geoUserToPosition = {};
+    // const { geoUserToMarkers, geoUserToPosition } = this.getGeoUserMarkers(props);
+    const prevMarkers = this.state.markers;
+    const markersFromProps = props.points;
+    const markers = {};
     const allCoords = {};
-    markers.forEach((marker) => {
-      let coord = getCoord(marker);
-      const coordKey = `${coord.lat},${coord.lng}`;
-      const geoUserKey = `${coordKey},${marker.userId}`;
-      if (geoUserToMarkers[geoUserKey]) {
-        geoUserToMarkers[geoUserKey] = [...geoUserToMarkers[geoUserKey], marker];
+    markersFromProps.forEach((marker) => {
+      if (prevMarkers[marker.id]) {
+        markers[marker.id] = prevMarkers[marker.id];
       } else {
-        geoUserToMarkers[geoUserKey] = [marker];
+        let coord = getCoord(marker);
+        const coordKey = `${coord.lat},${coord.lng}`;
 
-          // Compute coords
         if (allCoords[coordKey]) {
             // Generate a random coordinate around original position
           coord = {
@@ -140,15 +138,52 @@ class GoogleMapWrapper extends React.Component {
           };
         }
         allCoords[coordKey] = true;
-        geoUserToPosition[geoUserKey] = coord;
+
+        markers[marker.id] = {
+          ...marker,
+          runIcon: getRandomIcon(),
+          position: { lat: coord.lat, lng: coord.lng },
+        };
       }
     });
-    return {
-      geoUserToMarkers,
-      geoUserToPosition,
-      length: markers.length,
-    };
+    return markers;
   }
+
+  // getGeoUserMarkers(props) {
+  //   const markers = R.sortBy(R.prop('ts'))(props.points);
+  //   if (!markers) {
+  //     return { geoUserToMarkers: {}, geoUserToPosition: {}, length: 0 };
+  //   }
+  //   const geoUserToMarkers = { };
+  //   const geoUserToPosition = {};
+  //   const allCoords = {};
+  //   markers.forEach((marker) => {
+  //     let coord = getCoord(marker);
+  //     const coordKey = `${coord.lat},${coord.lng}`;
+  //     const geoUserKey = `${coordKey},${marker.userId}`;
+  //     if (geoUserToMarkers[geoUserKey]) {
+  //       geoUserToMarkers[geoUserKey] = [...geoUserToMarkers[geoUserKey], marker];
+  //     } else {
+  //       geoUserToMarkers[geoUserKey] = [marker];
+  //
+  //         // Compute coords
+  //       if (allCoords[coordKey]) {
+  //           // Generate a random coordinate around original position
+  //         coord = {
+  //           lat: coord.lat + Math.random() / 10 - 0.05,
+  //           lng: coord.lng + Math.random() / 10 - 0.05,
+  //         };
+  //       }
+  //       allCoords[coordKey] = true;
+  //       geoUserToPosition[geoUserKey] = coord;
+  //     }
+  //   });
+  //   return {
+  //     geoUserToMarkers,
+  //     geoUserToPosition,
+  //     length: markers.length,
+  //   };
+  // }
 
   initFirebase() {
     const lastPointTs = this.props.lastPointTs;
@@ -176,7 +211,7 @@ class GoogleMapWrapper extends React.Component {
   }
 
   render() {
-    const markers = this.state.markers;
+    const markers = R.sortBy(R.prop('ts'))(Object.values(this.state.markers));
     if (!this.state.browser) {
       return null;
     }
@@ -196,6 +231,19 @@ class GoogleMapWrapper extends React.Component {
         />
         <div style={{ ...styles.card, position: mobile ? 'relative' : 'absolute', height: '90vh' }} >
           <SideCard mobile={mobile} markers={markers} />
+        </div>
+        <div style={{ ...styles.bottomCard, position: mobile ? 'relative' : 'absolute' }} >
+          <p>Encouragez Brian et rejoignez les:</p>
+          <Animate
+            data={{ n: markers.length }}
+            duration={5000}
+            easing="easeCubicInOut"
+          >
+            {data => (<div style={{ color: '#26B8D0', paddingTop: 5, fontSize: 35 }}>
+              {Math.round(data.n).toLocaleString('fr', { maximumFractionDigits: 2 }) }
+            </div>)}
+          </Animate>
+          <p style={{ textTransform: 'uppercase', paddingTop: 10, color: '#5F6061', fontSize: 20 }}>supporters</p>
         </div>
       </div>
     );

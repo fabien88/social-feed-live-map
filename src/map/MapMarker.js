@@ -13,7 +13,7 @@ class MapMarker extends React.Component {
     const { position, id, iconUrl, active, overed, ts } = this.props;
     return (
       <Animate
-        data={{ scale: overed ? 70 : 50 }}
+        data={{ scale: overed || active ? 70 : 50 }}
         duration={200}
         easing={easingFunc}
       >
@@ -21,7 +21,7 @@ class MapMarker extends React.Component {
           <Marker
             position={position}
             key={id}
-            defaultAnimation={4}
+            defaultAnimation={window.google.maps.Animation.DROP}
             optimized
             icon={{
               scaledSize: new window.google.maps.Size(data.scale, data.scale),
