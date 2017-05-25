@@ -6,8 +6,24 @@ import Divider from 'material-ui/Divider';
 import TextField from 'material-ui/TextField';
 import { connect } from 'react-redux';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { onShowThankYou } from '../actions.js';
+import IconButton from 'material-ui/IconButton';
+import {
+  ShareButtons,
+  ShareCounts,
+  generateShareIcon,
+} from 'react-share';
+const {
+  FacebookShareButton,
+  TwitterShareButton,
+} = ShareButtons;
+const {
+  FacebookShareCount,
+} = ShareCounts;
+
+import { onShowThankYou, onHideThankYou } from '../actions.js';
 import 'whatwg-fetch';
+const FacebookIcon = generateShareIcon('facebook');
+const TwitterIcon = generateShareIcon('twitter');
 
 const BACKEND_URL = 'https://enigmatic-depths-26837.herokuapp.com';
 
@@ -23,7 +39,7 @@ const styles = {
   h2: {
     color: '#26B8D0',
     textTransform: 'uppercase',
-    fontWeight: 200,
+    fontWeight: 400,
     lineHeight: 0.5,
     fontSize: 25,
   },
@@ -59,16 +75,75 @@ const CursorWindowW = ({ myPos }) => {
   );
 };
 
+const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
+  const websiteUrl = 'https://defi-respire.fr/#carte';
+  const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
+  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/15agGFPU0T`;
+  const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
+  return (
+    <div style={{ display: 'flex', justifyContent: flexJustify, alignItems: 'center' }}>
+      <span style={{ paddingRight: 5 }}>{text}</span>
+      <a style={{ paddingRight: 5 }} href={tweetIntentUrl} rel="noopener noreferrer" target="_blank" >
+        <TwitterIcon size={size} round />
+      </a>
+      <FacebookShareButton
+        url={websiteUrl}
+        title="J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose"
+        description={facebookMessage}
+        picture="http://d1vfuujltsw10o.cloudfront.net/Visuel_Partage_Carte.jpg"
+      >
+        <FacebookIcon size={size} round />
+      </FacebookShareButton>
+      {/* <FacebookShareCount url={'http://lemonde.fr'} >
+        {shareCount => (
+          <span className="myShareCountWrapper">{shareCount}</span>
+        )}
+      </FacebookShareCount> */}
+    </div>
+  );
+};
+
 const CursorWindow = connect(({ myPos }) => ({
   myPos,
 }))(CursorWindowW);
 export { CursorWindow };
 
-const AcclaimIntroW = ({ onClick, showThankYou }) => {
+const ActionButton = ({ onClick }) => (
+  <div style={styles.btn}>
+    <RaisedButton style={{ width: 300, height: 50 }} labelStyle={{ fontSize: 18 }} primary label="J'encourage Brian" onClick={onClick} />
+  </div>
+);
+
+const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
   if (showThankYou) {
-    return (<div>
-        Merci :)
-    </div>);
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+
+        <div onClick={onHideThankYou} style={{ textAlign: 'right' }}>
+          <IconButton>
+            <img alt="close" width={30} src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png" />
+          </IconButton>
+        </div>
+
+        <div style={{ paddingLeft: 20, paddingRight: 20 }}>
+          <div style={styles.title}>
+            <h2 style={styles.h2} >Merci !</h2>
+          </div>
+          <p>Et hop, un encouragement de plus, merci à vous&nbsp;!</p>
+          <p style={{ paddingTop: 30 }}>Multipliez les encouragements pour Brian en partagean la carte&nbsp;!</p>
+          <div style={{ paddingTop: 50, textAlign: 'center', paddingBottom: 100 }}>
+            <ShareIcons size={60} flexJustify="center" />
+          </div>
+
+
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: 10, lineHeight: 1 }}>{"Nous n'utiliserons pas vos informations personnelles."}</p>
+          <p style={{ fontSize: 10, lineHeight: 1 }}>{'Nous ne pourrons être tenus responsables du contenu de votre message.'}</p>
+        </div>
+      </div>
+
+    );
   }
   return (
     <div style={{ paddingLeft: 20, paddingRight: 20 }}>
@@ -82,8 +157,10 @@ const AcclaimIntroW = ({ onClick, showThankYou }) => {
            Calais, vous pouvez le soutenir symboliquement dès maintenant
            en vous ajoutant sur cette carte.</p>
       <p>Sinon il suffit de Tweeter votre soutien avec le hashtag <a target="_blank" href="https://twitter.com/search?q=%23defidemalade&lang=fr">#DefiDeMalade</a> en activant la géolocalisation</p>
-      <div style={styles.btn}>
-        <RaisedButton primary label="J'encourage Brian" onClick={onClick} />
+      <ActionButton onClick={onClick} />
+
+      <div style={{ paddingTop: 50, textTransform: 'uppercase', fontWeight: 600, textAlign: 'right' }}>
+        <ShareIcons size={40} text={'Partager : '} flexJustify="flex-end" />
       </div>
     </div>
   );
@@ -91,7 +168,7 @@ const AcclaimIntroW = ({ onClick, showThankYou }) => {
 
 const AcclaimIntro = connect(({ showThankYou }) => ({
   showThankYou,
-}))(AcclaimIntroW);
+}), { onHideThankYou })(AcclaimIntroW);
 
 export { AcclaimIntro };
 
@@ -134,11 +211,17 @@ class AcclaimForm extends React.Component {
   }
 
   render() {
-    const { myPos } = this.props;
+    const { myPos, onFlip } = this.props;
     const { nameEmptyErr, messageEmptyErr, myPosEmptyErr } = this.state;
 
     return (
       <div style={styles.form}>
+        <div onClick={onFlip} style={{ textAlign: 'right', marginRight: -20, marginTop: -20 }}>
+          <IconButton>
+            <img alt="close" width={30} src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png" />
+          </IconButton>
+        </div>
+
         <h2 style={styles.h2} >Encouragez Brian</h2>
         <p>1. Votre emplacement</p>
 
@@ -202,9 +285,7 @@ class AcclaimForm extends React.Component {
             }}
           />
           <div style={styles.btn}>
-            <RaisedButton
-              primary
-              label="J'encourage Brian"
+            <ActionButton
               onClick={() => {
                 if (this.captchaCode) {
                   this.submitForm();

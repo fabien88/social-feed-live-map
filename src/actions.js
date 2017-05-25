@@ -37,6 +37,10 @@ export const onShowThankYou = () => ({
   type: 'ON_SHOW_THANK_YOU',
   payload: { },
 });
+export const onHideThankYou = () => ({
+  type: 'ON_HIDE_THANK_YOU',
+  payload: { },
+});
 
 export const setMyPos = ({ lat, lng }) => ({
   type: 'ON_MY_POS_UPDATE',

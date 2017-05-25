@@ -18,12 +18,30 @@ const styles = {
     paddingTop: 10,
   },
 };
-const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, userName }) => {
+
+
+const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, userName, ...props }) => {
+  if (type === 'step') {
+    const { step, city, place, address, date } = props;
+    return (
+      <div style={{ ...styles.markerInfo }}>
+        <div style={{ fontWeight: 700 }}>
+          {new Date(date).toLocaleDateString()}
+        </div>
+        <div>
+          {step}          : {city}
+        </div>
+        <div>
+          {place}          - {address}
+        </div>
+      </div>
+    );
+  }
   if (type === 'tweet' || type === 'retweet') {
     return (
       <div style={{ ...styles.markerInfo, minHeight: 400 }}>
         <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
-        <TweetEmbed key={id} id={id} />
+        <TweetEmbed key={id} id={id} options={{ lang: 'fr' }} />
       </div>
 
     );

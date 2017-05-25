@@ -9,10 +9,19 @@ import MapMarker from './MapMarker';
 import { setActiveMarker, queryFirebaseMessages, queryFirebasePoints, flipForm, setMyPos } from '../actions';
 import SideCard from './SideCard';
 import { CursorWindow } from './Acclaim';
+import 'whatwg-fetch';
+import { typecastRoutes } from './GoogleMapUtil';
+import Script from 'react-load-script';
+import GoogleMapDirection from './GoogleMapDirection';
+
 const mapStyles = require('./GoogleMapStyle.json');
 
 const CDN = 'https://d1vfuujltsw10o.cloudfront.net';
 const ICON_CDN = `${CDN}/icons`;
+
+
+const asyncMapFragments = [1, 2].map(i => `geocodeSteps${i}`);
+const asyncMapFragmentsUrls = asyncMapFragments.map(name => `${CDN}/map/${name}.js`);
 
 const humanIcons = [1, 2, 3, 4, 5].map(idx => `${ICON_CDN}/Encouragement_Homme_DefiRespire${idx}.png`);
 const getRandomIcon = () => humanIcons[Math.round(Math.random() * (humanIcons.length - 1))];
@@ -21,6 +30,10 @@ const styles = {
   card: {
     left: 20,
     top: 10,
+    position: 'absolute',
+  },
+  cardMobile: {
+    width: '100vw',
   },
   bottomCard: {
     paddingTop: 30,
@@ -31,6 +44,14 @@ const styles = {
     backgroundColor: 'white',
     overflow: 'auto',
     padding: 20,
+    boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+    borderRadius: 2,
+    position: 'absolute',
+  },
+  bottomCardMobile: {
+    textAlign: 'center',
+    backgroundColor: 'white',
+    overflow: 'auto',
     boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
     borderRadius: 2,
   },
@@ -52,7 +73,7 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff }) => {
+let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap }) => {
   const markersRender = (
     <Animate
       default={{ length: 0 }}
@@ -75,14 +96,13 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
       }
     </Animate>
   );
-
-
   return (
     <GoogleMap
       defaultZoom={zoom}
       defaultCenter={{ lat: 47.43, lng: 2.43 }}
       defaultOptions={{ styles: mapStyles, disableDefaultUI: true }}
       onClick={() => setActiveMarker(null)}
+      ref={onMapLoad}
     >
       { showForm && // Show draggable marker at center of france
         <Marker
@@ -91,7 +111,7 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
           draggable
           icon={{
             url: `${ICON_CDN}/Geolocalisation.png`,
-            scaledSize: new window.google.maps.Size(50, 50),
+            scaledSize: new window.google.maps.Size(70, 70),
           }}
           onDragEnd={e => setMyPos({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
           onDrag={e => setMyPos({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
@@ -100,7 +120,7 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         </Marker>
       }
       {markersRender}
-
+      <GoogleMapDirection fragmentsMap={fragmentsMap} asyncMapFragments={asyncMapFragments} />
     </GoogleMap>
   );
 };
@@ -116,11 +136,58 @@ GoogleMapComp = withScriptjs(
   withGoogleMap(GoogleMapComp),
 );
 
+const steps1 = [
+  'Chemin du Pouverel, 83390 Cuers',
+  'AVENUE ADJUDANT CHEF MARIE LOUIS BROQUIER, 83170 Brignoles',
+  'Chemin de la Halte, 83910 Pourrières',
+  '40 Allée des Dolia, 13100 Aix-en-Provence, France',
+  '53 avenue des Frères Roqueplan, 13370 MALLEMORT',
+  '1945 Place du Huit Mai 1945, 84510 Caumont-sur-Durance',
+  'Rue Carnot, 30150 Roquemaure',
+  '30200 Saint-Gervais', // "50 Avenue du Mont d'Arbois, 74170 Saint-Gervais-les-Bains",
+  'Le Village, 07150 Bessas',
+  'La combe, 07140 Saint-Pierre-Saint-Jean',
+  'La chavade,07330 Astet',
+  'Le Bourg, 43510 Le Bouchet-Saint-Nicolas, France',
+  'Le Bourg, 43300 Siaugues-Sainte-Marie, France',
+  'Rue Rabelais, 43100 Brioude, France',
+  '4 Avenue Pierre et Marie Curie, 63500 Issoire, France',
+  '3 Rue de la Ganne, 63170 Aubière, France',
+  '57 bis, belle allée - 63460 COMBRONDE',
+  'Route des bayons - 63700 ST ELOY LES MINES',
+  'Montluçon - Place Jean Dormoy',
+];
+
+const steps2 = [
+  'Montluçon - Place Jean Dormoy',
+  '12 Place de la Mairie, 03360 Meaulne, France',
+  'Place de la République,18200 Saint-Amand-Montrond',
+  'Impasse Vincent Van Gogh, 18340 Plaimpied-Givaudins, France',
+  'Place de la République,18200 Saint-Amand-Montrond',
+  '1 Rue de la Croix de Mauconseil, 18700 Aubigny-sur-Nère, France',
+  'Chemin de la Pillardière, 45600 Sully-sur-Loire, France',
+  'Place Jules Ferry, 45270 Bellegarde, France',
+  '2 Avenue du Maréchal Berthier, 45300 Pithiviers, France',
+  'Place du Marché Franc, 91150 Étampes, France',
+  'Rue du Pont aux Pins, 91310, France',
+  'Champs de mars, 75007 Paris',
+  'Rue Courtil Bajou, 95540 Méry-sur-Oise, France',
+  '44 Rue Aristide Briand, 60110 Méru, France',
+  '1 Rue Desgroux, 60000 Beauvais, France',
+  '10 Place de la Censé, 60210 Grandvilliers, France',
+  'Rue des Airettes, 80540 Molliens-Dreuil, France',
+  '3 Avenue du Rivage, 80100 Abbeville, France',
+  '1 Rue de la Mairie, 80120 Quend',
+  "Parc d'Activité Opalopolis, Boulevard Edouard Lévêque, 62630 Étaples",
+  "Parc naturel régional des Caps et Marais d'Opale, 11 Rue Jules Ferry, 62720 Rety",
+  'Place du Soldat Inconnu, 62100 Calais, France',
+];
 
 class GoogleMapWrapper extends React.Component {
   state = {
     markers: [],
     animationOff: false,
+    route: null,
   };
 
   flattenGeoUserMarkers = (props) => {
@@ -165,7 +232,6 @@ class GoogleMapWrapper extends React.Component {
     if (this.props.appStarted) {
       this.initFirebase();
     }
-    // setTimeout(() => this.setState({ animationOff: true }), 15000);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -179,13 +245,69 @@ class GoogleMapWrapper extends React.Component {
     this.setState({ markers: this.flattenGeoUserMarkers(this.props) });
   }
 
+  transformRoute = (routeName) => {
+    const globalRouteFromExtJs = window[routeName]; // Loaded from external js
+    if (globalRouteFromExtJs && window.google && window.google.maps) {
+      typecastRoutes(globalRouteFromExtJs.routes);
+      this.setState({ [routeName]: {
+        routes: globalRouteFromExtJs.routes,
+        request: {
+          travelMode: window.google.maps.TravelMode.WALKING,
+        },
+      } });
+      window[routeName] = null;
+    }
+  }
+  onMapLoad = () => {
+    this.transformRoute('geocodeSteps1');
+    this.transformRoute('geocodeSteps2');
+
+
+    // if (!this.state.route1 && !this.state.route2) {
+    //   const loadForStep = (steps, stepName) => {
+    //     const directionsService = new window.google.maps.DirectionsService();
+    //     const origin = steps[0];
+    //     const destination = steps[steps.length - 1];
+    //     const waypoints = steps.slice(1, -1).map(step => ({
+    //       location: step,
+    //       stopover: false,
+    //     }));
+    //
+    //     const request = {
+    //       origin,
+    //       destination,
+    //       waypoints,
+    //       optimizeWaypoints: false,
+    //       provideRouteAlternatives: false,
+    //       // language: 'fr',
+    //       travelMode: window.google.maps.TravelMode.WALKING,
+    //     };
+    //     directionsService.route(request, (result, status) => {
+    //       if (status === window.google.maps.DirectionsStatus.OK) {
+    //         this.setState({ [stepName]: result });
+    //       }
+    //     });
+    //   };
+    //   loadForStep(steps1, 'route1');
+    //   loadForStep(steps2, 'route2');
+    // }
+  }
+
   render() {
     const markers = R.sortBy(R.prop('ts'))(Object.values(this.state.markers));
 
     const responsiveRender = mobile => (
       <div>
+        {asyncMapFragments.map((name, i) =>
+          <Script
+            url={asyncMapFragmentsUrls[i]}
+            key={name}
+            onError={console.log}
+            onLoad={() => this.transformRoute(name)}
+          />,
+        )}
         <GoogleMapComp
-          googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDfyjrkHc0y1l4OzqfFV2noO2906f1RNuY"
+          googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry&key=AIzaSyDfyjrkHc0y1l4OzqfFV2noO2906f1RNuY"
           zoom={mobile ? 5 : 7}
           loadingElement={
             <div style={{ height: '100%' }} />
@@ -195,11 +317,13 @@ class GoogleMapWrapper extends React.Component {
           setActiveMarker={this.props.setActiveMarker}
           markers={markers}
           animationOff={this.state.animationOff}
+          onMapLoad={this.onMapLoad}
+          fragmentsMap={asyncMapFragments.map(name => this.state[name])}
         />
-        <div style={{ ...styles.card, position: mobile ? 'relative' : 'absolute', height: '90vh' }} >
+        <div style={mobile ? styles.cardMobile : styles.card} >
           <SideCard mobile={mobile} markers={markers} />
         </div>
-        <div style={{ ...styles.bottomCard, position: mobile ? 'relative' : 'absolute' }} >
+        <div style={mobile ? styles.bottomCardMobile : styles.bottomCard} >
           <p>Encouragez Brian et rejoignez les:</p>
           <Animate
             data={{ n: markers.length }}
@@ -216,7 +340,7 @@ class GoogleMapWrapper extends React.Component {
     );
 
     return (
-      <div>
+      <div style={{ position: 'relative' }}>
         <MediaQuery query="(max-width: 800px)">
           {responsiveRender(true)}
         </MediaQuery>

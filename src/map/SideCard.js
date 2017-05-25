@@ -9,14 +9,12 @@ import { AcclaimForm } from './Acclaim';
 const styles = {
   socialBox: {
     backgroundColor: 'white',
-    overflow: 'auto',
+    // overflow: 'auto',
     padding: 20,
-    WebkitOverflowScrolling: 'touch',
+    // WebkitOverflowScrolling: 'touch',
     boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
     borderRadius: 2,
-  },
-  mapBox: {
-    width: '100%',
+    width: '88vw',
   },
 };
 
@@ -26,10 +24,10 @@ const SideCard = ({ mobile, markers, showForm, flipForm }) => (
     className={s.content}
     flipped={showForm}
   >
-    <div style={{ ...styles.socialBox, width: mobile ? '100%' : 350, minHeight: 540 }} >
+    <div style={{ ...styles.socialBox, width: mobile ? '90vw' : 350, marginTop: mobile ? 125 : 0, minHeight: 620, height: 620 }} >
       <ScrollableTable markers={markers.filter(c => c.type === 'message').reverse()} onFlip={flipForm} />
     </div>
-    <div style={{ ...styles.socialBox, width: mobile ? '100vw' : 350, minHeight: 540 }} >
+    <div style={{ ...styles.socialBox, width: mobile ? '90vw' : 350, minHeight: 620, height: 620 }} >
       <AcclaimForm onFlip={flipForm} />
     </div>
   </FlipCard>

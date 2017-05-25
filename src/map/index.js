@@ -7,13 +7,7 @@ class SocialMapPage extends React.Component {
 
   render() {
     return (
-      <div
-        style={{ height: '600px', width: '100%' }}
-      >
-
-        <GoogleMap />
-
-      </div>
+      <GoogleMap />
     );
   }
 }

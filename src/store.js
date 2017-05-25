@@ -96,6 +96,8 @@ const store = createStore((state = initialState, action) => {
       return { ...state, started: true };
     case 'ON_SHOW_THANK_YOU':
       return { ...state, showThankYou: true };
+    case 'ON_HIDE_THANK_YOU':
+      return { ...state, showThankYou: false };
 
     case 'ON_POINTS_RECEIVED': {
       const { points } = action.payload;
