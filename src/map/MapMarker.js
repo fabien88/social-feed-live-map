@@ -21,8 +21,8 @@ class MapMarker extends React.Component {
           <Marker
             position={position}
             key={id}
-            defaultAnimation={window.google.maps.Animation.DROP}
-            optimized
+            defaultAnimation={4}
+            // optimized
             icon={{
               scaledSize: new window.google.maps.Size(data.scale, data.scale),
               url: iconUrl,

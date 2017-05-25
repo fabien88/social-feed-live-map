@@ -73,7 +73,7 @@ const AcclaimIntroW = ({ onClick, showThankYou }) => {
   return (
     <div style={{ paddingLeft: 20, paddingRight: 20 }}>
       <div style={styles.title}>
-        <img width={100} src="https://d1vfuujltsw10o.cloudfront.net/icons/megaphone_defiRespire.png" alt="megaphone" />
+        <img width={100} src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png" alt="megaphone" />
         <h2 style={styles.h2} >Cours brian,</h2>
         <h2 style={styles.h2}>Cours !</h2>
       </div>

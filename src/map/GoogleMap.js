@@ -27,7 +27,7 @@ const styles = {
     textAlign: 'center',
     width: 350,
     left: 20,
-    bottom: 10,
+    bottom: 20,
     backgroundColor: 'white',
     overflow: 'auto',
     padding: 20,
@@ -59,12 +59,12 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
       data={{ length: markers.length }}
       duration={animationDuration}
       easing="easeCubicInOut"
+      flexDuration
     >
       {data =>
         <div>
           {markers && markers
-            .slice(0, data.length)
-            .map(marker => <MapMarker key={marker.id} {...marker} iconUrl={marker.runIcon} />)
+            .map((marker, i) => (i < data.length && <MapMarker key={marker.id} {...marker} iconUrl={marker.runIcon} />))
           }
         </div>
       }
@@ -118,72 +118,39 @@ class GoogleMapWrapper extends React.Component {
   };
 
   flattenGeoUserMarkers = (props) => {
-    // const { geoUserToMarkers, geoUserToPosition } = this.getGeoUserMarkers(props);
     const prevMarkers = this.state.markers;
     const markersFromProps = props.points;
     const markers = {};
     const allCoords = {};
     markersFromProps.forEach((marker) => {
-      if (prevMarkers[marker.id]) {
-        markers[marker.id] = prevMarkers[marker.id];
-      } else {
-        let coord = getCoord(marker);
-        const coordKey = `${coord.lat},${coord.lng}`;
+      // if (prevMarkers[marker.id]) {
+      //   markers[marker.id] = prevMarkers[marker.id];
+      // } else {
+      let coord = getCoord(marker);
+      const coordKey = `${coord.lat},${coord.lng}`;
 
-        if (allCoords[coordKey]) {
+      if (allCoords[coordKey]) {
             // Generate a random coordinate around original position
-          coord = {
-            lat: coord.lat + Math.random() / 10 - 0.05,
-            lng: coord.lng + Math.random() / 10 - 0.05,
-          };
-        }
-        allCoords[coordKey] = true;
-
-        markers[marker.id] = {
-          ...marker,
-          runIcon: getRandomIcon(),
-          position: { lat: coord.lat, lng: coord.lng },
+        coord = {
+          lat: coord.lat + Math.random() / 5 - 0.1,
+          lng: coord.lng + Math.random() / 5 - 0.1,
         };
       }
+      allCoords[coordKey] = true;
+      if (markers[marker.id]) {
+        console.log('duplicate');
+      }
+      markers[marker.id] = {
+        ...marker,
+        runIcon: getRandomIcon(),
+        position: { lat: coord.lat, lng: coord.lng },
+        lat: coord.lat,
+      };
+
+      // }
     });
     return markers;
   }
-
-  // getGeoUserMarkers(props) {
-  //   const markers = R.sortBy(R.prop('ts'))(props.points);
-  //   if (!markers) {
-  //     return { geoUserToMarkers: {}, geoUserToPosition: {}, length: 0 };
-  //   }
-  //   const geoUserToMarkers = { };
-  //   const geoUserToPosition = {};
-  //   const allCoords = {};
-  //   markers.forEach((marker) => {
-  //     let coord = getCoord(marker);
-  //     const coordKey = `${coord.lat},${coord.lng}`;
-  //     const geoUserKey = `${coordKey},${marker.userId}`;
-  //     if (geoUserToMarkers[geoUserKey]) {
-  //       geoUserToMarkers[geoUserKey] = [...geoUserToMarkers[geoUserKey], marker];
-  //     } else {
-  //       geoUserToMarkers[geoUserKey] = [marker];
-  //
-  //         // Compute coords
-  //       if (allCoords[coordKey]) {
-  //           // Generate a random coordinate around original position
-  //         coord = {
-  //           lat: coord.lat + Math.random() / 10 - 0.05,
-  //           lng: coord.lng + Math.random() / 10 - 0.05,
-  //         };
-  //       }
-  //       allCoords[coordKey] = true;
-  //       geoUserToPosition[geoUserKey] = coord;
-  //     }
-  //   });
-  //   return {
-  //     geoUserToMarkers,
-  //     geoUserToPosition,
-  //     length: markers.length,
-  //   };
-  // }
 
   initFirebase() {
     const lastPointTs = this.props.lastPointTs;

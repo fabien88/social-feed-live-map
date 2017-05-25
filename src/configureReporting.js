@@ -59,7 +59,7 @@ const createReportingMiddleware = () => {
 const register = unhandledRejection =>
   unhandledRejection((event) => {
     event.preventDefault();
-    captureException(event.detail.reason);
+    captureException(event.reason);
   });
 
 const configureReporting = (options) => {

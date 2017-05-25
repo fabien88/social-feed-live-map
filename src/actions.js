@@ -49,9 +49,14 @@ export const queryFirebasePoints = lastPointTs => ({ firebase, dispatch }) => {
         .orderByChild('createdAt')
         .startAt(lastPointTs + 1)
         .limitToLast(10000);
-  const childsAdded = Observable.fromEvent(ref, 'child_added');
-  const buffered = childsAdded.bufferTime(500);
-  buffered.subscribe((vals) => {
+  Observable.fromEvent(ref, 'child_added').bufferTime(500).subscribe((vals) => {
+    if (vals.length === 0) {
+      return;
+    }
+    dispatch(onPointsReceived(vals.map(snap => snap.val())));
+  });
+
+  Observable.fromEvent(ref, 'child_changed').bufferTime(500).subscribe((vals) => {
     if (vals.length === 0) {
       return;
     }

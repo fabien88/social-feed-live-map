@@ -8,7 +8,6 @@
             "createdAt"
           ]
         },
-
         "rawFBComments": {
           ".indexOn": [
             "ts"
@@ -22,5 +21,39 @@
         }
       }
     }
+  },
+  "database": {
+    "rules": {
+      "tags": {
+        "$tag": {
+          "points": {
+            ".read": "true",
+            ".indexOn": [
+              "createdAt"
+            ]
+          },
+          "rawFBComments": {
+            ".indexOn": [
+              "ts"
+            ]
+          },
+          "messages": {
+            ".read": "true",
+            ".indexOn": [
+              "createdAt"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

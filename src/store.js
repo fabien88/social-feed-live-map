@@ -29,7 +29,7 @@ const initialState = {
   showForm: false,
   myPos: null,
   showThankYou: false,
-  animationDuration: 5000,
+  animationDuration: 3000,
 };
 
 let firebaseDeps = null;
@@ -103,19 +103,21 @@ const store = createStore((state = initialState, action) => {
       }
       let lastPointTs = state.lastPointTs;
       const newPoints = [];
+      let updatedPoints = state.points;
 
       points.forEach((point) => {
         lastPointTs = Math.max(lastPointTs, point.createdAt);
-        if (!R.find(R.propEq('id', point.id))(state.points)) {
-          newPoints.push(point);
-        } else {
-          console.log('Duplicate found');
+        const findIndex = R.findIndex(R.propEq('userId', point.userId))(updatedPoints);
+        if (findIndex > -1) {
+          updatedPoints = R.remove(findIndex, 1, updatedPoints);
+          console.log('Duplicate found, but added still');
         }
+        newPoints.push(point);
       });
 
       return { ...state,
         lastPointTs,
-        points: [...state.points, ...newPoints],
+        points: [...updatedPoints, ...newPoints],
       };
     }
 
