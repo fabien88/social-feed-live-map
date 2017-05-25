@@ -30,7 +30,7 @@ const initialState = {
   showForm: false,
   myPos: null,
   showThankYou: false,
-  animationDuration: 25000,
+  animationDuration: 15000,
 };
 
 let firebaseDeps = null;

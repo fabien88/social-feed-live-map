@@ -67,8 +67,8 @@ const allSteps = [
     date: '8 May 2017',
     city: 'SAINT-GERVAIS',
     place: 'Mairie',
-    address: "50 Avenue du Mont d'Arbois, 74170 Saint-Gervais-les-Bains",
-    coord: '45.897452,6.7113356',
+    address: '30200 Saint-Gervais-les-Bains',
+    coord: '44.185382,4.573707',
   },
   {
     step: 'ETAPE 9',
@@ -333,6 +333,10 @@ const allSteps = [
   },
 ];
 
+const addHours = (date, hours) =>
+  date.setHours(date.getHours() + hours);
+
+
 export default ({ fragmentsMap, asyncMapFragments }) => {
   for (let i = 0; i < fragmentsMap.length; ++i) {
     if (!fragmentsMap[i]) {
@@ -354,7 +358,7 @@ export default ({ fragmentsMap, asyncMapFragments }) => {
       showOnOver
       smaller={!step.bigger}
       position={{ lat: +step.coord.split(',')[0], lng: +step.coord.split(',')[1] }}
-      iconUrl={step.icon || `${CDN}/icons/SmallEtape.png`}
+      iconUrl={step.icon || Date.now() > addHours(new Date(step.date), 15) ? `${CDN}/icons/SmallEtape.png` : `${CDN}/icons/SmallEtape_vide.png`}
       {...step}
       type="step"
     />)}

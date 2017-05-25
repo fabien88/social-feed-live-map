@@ -26,10 +26,10 @@ const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, 
     return (
       <div style={{ ...styles.markerInfo }}>
         <div style={{ fontWeight: 700 }}>
-          {new Date(date).toLocaleDateString()}
+          {new Date(date).toLocaleDateString()} {step}
         </div>
         <div>
-          {step}          : {city}
+          {city}          , arrivée vers 14h-15h
         </div>
         <div>
           {place}          - {address}

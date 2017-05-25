@@ -10,7 +10,7 @@ const easingFunc = (t, s = 5) => --t * t * ((s + 1) * t + s) + 1;
 class MapMarker extends React.Component {
 
   render() {
-    const { position, id, iconUrl, active, overed, ts, animation, hide, mobile, bigger, smaller } = this.props;
+    const { position, id, iconUrl, active, overed, ts, animation, hide, mobile, bigger, smaller, showOnOver } = this.props;
     const sizeAdd = bigger ? 30 : (smaller ? -20 : 0);
     return (
       <Animate
@@ -29,12 +29,12 @@ class MapMarker extends React.Component {
               url: iconUrl,
             }}
             zIndex={overed ? 9999999999 : (bigger ? 9999999998 : Math.round(ts / 1000))}
-            onClick={() => this.props.setActiveMarker(id)}
+            onClick={() => !showOnOver && this.props.setActiveMarker(id)}
             onMouseOver={() => this.props.setOverMarker(id)}
             onMouseOut={() => this.props.setOverMarker(null)}
             visible={!hide}
           >
-            { active ?
+            { active || (showOnOver && overed) ?
               <InfoWindow
                 position={position}
                 onCloseClick={() => this.props.setActiveMarker(null)}
