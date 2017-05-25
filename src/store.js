@@ -24,12 +24,13 @@ const initialState = {
   points: [],
   overedMarkerId: null,
   activeMarkerId: null,
+  newMarkerId: null,
   lastPointTs: 0,
   lastMessageTs: 0,
   showForm: false,
   myPos: null,
   showThankYou: false,
-  animationDuration: 3000,
+  animationDuration: 25000,
 };
 
 let firebaseDeps = null;
@@ -137,15 +138,15 @@ const store = createStore((state = initialState, action) => {
           console.log('Duplicate found');
         }
       });
-      let { activeMarkerId, animationDuration } = state;
+      let { newMarkerId, animationDuration } = state;
       if (messages.length === 1) {
-        activeMarkerId = messages[0].id;
-        animationDuration = 1000;
+        newMarkerId = messages[0].id;
+        // animationDuration = 1000;
       }
 
       return { ...state,
         lastMessageTs,
-        activeMarkerId,
+        newMarkerId,
         animationDuration,
         points: [...state.points, ...newMessages], // Merge messages with points
       };
@@ -158,6 +159,13 @@ const store = createStore((state = initialState, action) => {
     }
     case 'ON_SET_MARKER_ACTIVE': {
       const { markerId } = action.payload;
+      const { activeMarkerId, newMarkerId } = state;
+      if (markerId === null) {
+        return { ...state, newMarkerId: null, activeMarkerId: null };
+      }
+      if (markerId === activeMarkerId || markerId === newMarkerId) {
+        return { ...state, newMarkerId: null, activeMarkerId: null };
+      }
       return { ...state, activeMarkerId: markerId };
     }
     case 'ON_FLIP_FORM': {

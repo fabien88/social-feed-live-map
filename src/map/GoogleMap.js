@@ -52,19 +52,24 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration }) => {
+let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff }) => {
   const markersRender = (
     <Animate
       default={{ length: 0 }}
       data={{ length: markers.length }}
       duration={animationDuration}
-      easing="easeCubicInOut"
-      flexDuration
+      easing="easeCircleOut"
+      // flexDuration
     >
       {data =>
         <div>
           {markers && markers
-            .map((marker, i) => (i < data.length && <MapMarker key={marker.id} {...marker} iconUrl={marker.runIcon} />))
+            .map((marker, i) => (i < data.length &&
+              <MapMarker
+                hide={showForm}
+                animation={i > markers.length - 10 ? window.google.maps.Animation.DROP : (i % 10 === 0 ? 4 : 0)}
+                key={marker.id} {...marker} iconUrl={marker.runIcon}
+            ></MapMarker>))
           }
         </div>
       }
@@ -79,7 +84,7 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
       defaultOptions={{ styles: mapStyles, disableDefaultUI: true }}
       onClick={() => setActiveMarker(null)}
     >
-      { showForm ? // Show draggable marker at center of france
+      { showForm && // Show draggable marker at center of france
         <Marker
           key="geoloc"
           position={{ lat: 46.8, lng: 2.43 }}
@@ -93,9 +98,9 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         >
           <CursorWindow />
         </Marker>
-        :
-        markersRender
       }
+      {markersRender}
+
     </GoogleMap>
   );
 };
@@ -115,6 +120,7 @@ GoogleMapComp = withScriptjs(
 class GoogleMapWrapper extends React.Component {
   state = {
     markers: [],
+    animationOff: false,
   };
 
   flattenGeoUserMarkers = (props) => {
@@ -123,31 +129,27 @@ class GoogleMapWrapper extends React.Component {
     const markers = {};
     const allCoords = {};
     markersFromProps.forEach((marker) => {
-      // if (prevMarkers[marker.id]) {
-      //   markers[marker.id] = prevMarkers[marker.id];
-      // } else {
-      let coord = getCoord(marker);
-      const coordKey = `${coord.lat},${coord.lng}`;
+      if (prevMarkers[marker.id]) {
+        markers[marker.id] = prevMarkers[marker.id];
+      } else {
+        let coord = getCoord(marker);
+        const coordKey = `${coord.lat},${coord.lng}`;
 
-      if (allCoords[coordKey]) {
-            // Generate a random coordinate around original position
-        coord = {
-          lat: coord.lat + Math.random() / 5 - 0.1,
-          lng: coord.lng + Math.random() / 5 - 0.1,
+        if (allCoords[coordKey]) {
+              // Generate a random coordinate around original position
+          coord = {
+            lat: coord.lat + Math.random() / 5 - 0.1,
+            lng: coord.lng + Math.random() / 5 - 0.1,
+          };
+        }
+        allCoords[coordKey] = true;
+        markers[marker.id] = {
+          ...marker,
+          runIcon: getRandomIcon(),
+          position: { lat: coord.lat, lng: coord.lng },
+          lat: coord.lat,
         };
       }
-      allCoords[coordKey] = true;
-      if (markers[marker.id]) {
-        console.log('duplicate');
-      }
-      markers[marker.id] = {
-        ...marker,
-        runIcon: getRandomIcon(),
-        position: { lat: coord.lat, lng: coord.lng },
-        lat: coord.lat,
-      };
-
-      // }
     });
     return markers;
   }
@@ -163,7 +165,7 @@ class GoogleMapWrapper extends React.Component {
     if (this.props.appStarted) {
       this.initFirebase();
     }
-    setTimeout(this.setState({ browser: true }), 0);
+    // setTimeout(() => this.setState({ animationOff: true }), 15000);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -179,9 +181,6 @@ class GoogleMapWrapper extends React.Component {
 
   render() {
     const markers = R.sortBy(R.prop('ts'))(Object.values(this.state.markers));
-    if (!this.state.browser) {
-      return null;
-    }
 
     const responsiveRender = mobile => (
       <div>
@@ -195,6 +194,7 @@ class GoogleMapWrapper extends React.Component {
           mapElement={<div style={{ height: '100%' }} />}
           setActiveMarker={this.props.setActiveMarker}
           markers={markers}
+          animationOff={this.state.animationOff}
         />
         <div style={{ ...styles.card, position: mobile ? 'relative' : 'absolute', height: '90vh' }} >
           <SideCard mobile={mobile} markers={markers} />
@@ -203,8 +203,8 @@ class GoogleMapWrapper extends React.Component {
           <p>Encouragez Brian et rejoignez les:</p>
           <Animate
             data={{ n: markers.length }}
-            duration={5000}
-            easing="easeCubicInOut"
+            duration={this.props.animationDuration}
+            easing="easeSinOut"
           >
             {data => (<div style={{ color: '#26B8D0', paddingTop: 5, fontSize: 35 }}>
               {Math.round(data.n).toLocaleString('fr', { maximumFractionDigits: 2 }) }
@@ -235,6 +235,7 @@ const connectedWrapper = connect(state => ({
   lastPointTs: state.lastPointTs,
   lastMessageTs: state.lastMessageTs,
   appStarted: state.started,
+  animationDuration: state.animationDuration,
 }), {
   setActiveMarker,
   queryFirebasePoints,

@@ -10,18 +10,19 @@ const easingFunc = (t, s = 5) => --t * t * ((s + 1) * t + s) + 1;
 class MapMarker extends React.Component {
 
   render() {
-    const { position, id, iconUrl, active, overed, ts } = this.props;
+    const { position, id, iconUrl, active, overed, ts, animation, hide } = this.props;
     return (
       <Animate
-        data={{ scale: overed || active ? 70 : 50 }}
+        data={{ scale: hide ? 0 : (overed || active ? 70 : 50) }}
         duration={200}
+        ignore={hide ? ['scale'] : []}
         easing={easingFunc}
       >
         {data => (
           <Marker
             position={position}
             key={id}
-            defaultAnimation={4}
+            defaultAnimation={animation}
             // optimized
             icon={{
               scaledSize: new window.google.maps.Size(data.scale, data.scale),
@@ -32,7 +33,7 @@ class MapMarker extends React.Component {
             onMouseOver={() => this.props.setOverMarker(id)}
             onMouseOut={() => this.props.setOverMarker(null)}
           >
-            { active ?
+            { !hide && active ?
               <InfoWindow
                 position={position}
                 onCloseClick={() => this.props.setActiveMarker(null)}
@@ -52,7 +53,7 @@ class MapMarker extends React.Component {
 
 export default connect((state, props) => ({
   overed: state.overedMarkerId === props.id,
-  active: state.activeMarkerId === props.id,
+  active: state.activeMarkerId === props.id || state.newMarkerId === props.id,
 }), {
   setOverMarker,
   setActiveMarker,
