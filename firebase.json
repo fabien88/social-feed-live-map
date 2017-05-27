@@ -1,31 +1,14 @@
 {
-  "rules": {
-    "tags": {
-      "$tag": {
-        "points": {
-          ".read": "true",
-          ".indexOn": [
-            "createdAt"
-          ]
-        },
-        "rawFBComments": {
-          ".indexOn": [
-            "ts"
-          ]
-        },
-        "messages": {
-          ".read": "true",
-          ".indexOn": [
-            "createdAt"
-          ]
-        }
-      }
-    }
-  },
   "database": {
     "rules": {
       "tags": {
         "$tag": {
+          "likesCount": {
+            ".read": "true"
+          },
+          "config": {
+            ".read": "true"
+          },
           "points": {
             ".read": "true",
             ".indexOn": [

@@ -23,6 +23,7 @@ const initialState = {
   viewer: null,
   points: [],
   overedMarkerId: null,
+  overedGroupId: null,
   activeMarkerId: null,
   newMarkerId: null,
   lastPointTs: 0,
@@ -31,6 +32,10 @@ const initialState = {
   myPos: null,
   showThankYou: false,
   animationDuration: 15000,
+  likesCount: 0,
+  config: {
+    blackList: new Set(),
+  },
 };
 
 let firebaseDeps = null;
@@ -155,9 +160,13 @@ const store = createStore((state = initialState, action) => {
     }
 
 
+    case 'ON_LIKES_COUNT_UPDATE': {
+      const { count } = action.payload;
+      return { ...state, likesCount: count };
+    }
     case 'ON_SET_MARKER_OVER': {
-      const { markerId } = action.payload;
-      return { ...state, overedMarkerId: markerId };
+      const { markerId, overedGroupId } = action.payload;
+      return { ...state, overedMarkerId: markerId, overedGroupId };
     }
     case 'ON_SET_MARKER_ACTIVE': {
       const { markerId } = action.payload;
@@ -176,6 +185,14 @@ const store = createStore((state = initialState, action) => {
     case 'ON_MY_POS_UPDATE': {
       const { lat, lng } = action.payload;
       return { ...state, myPos: { lat, lng } };
+    }
+    case 'ON_CONFIG_UPDATE': {
+      const { config } = action.payload;
+
+      const newConfig = {};
+      newConfig.blackList = new Set(Object.values(config.blackList || {}).map(o => o.id));
+
+      return { ...state, config: newConfig };
     }
 
     default:

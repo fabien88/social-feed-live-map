@@ -10,11 +10,24 @@ const easingFunc = (t, s = 5) => --t * t * ((s + 1) * t + s) + 1;
 class MapMarker extends React.Component {
 
   render() {
-    const { position, id, iconUrl, active, overed, ts, animation, hide, mobile, bigger, smaller, showOnOver } = this.props;
+    const { position, id, iconUrl, active, overed, ts, animation, hide, mobile, bigger, smaller, showOnOver, disableAutoPan, groupId, overedGroup } = this.props;
     const sizeAdd = bigger ? 30 : (smaller ? -20 : 0);
+    const multiplicator = mobile ? 0.5 : 1;
+
+    let zIndex = 0;
+    if (overed || overedGroup) {
+      zIndex = 9999999999; // Show on top
+      if (bigger) {
+        zIndex += 10;
+      }
+    } else if (bigger) {
+      zIndex = 9999999998; // For Paris and PasDeCalais flags
+    } else {
+      zIndex = Math.round(ts / 1000); // Last ts are show on top first
+    }
     return (
       <Animate
-        data={{ scale: (overed || active ? 70 : 50) + sizeAdd }}
+        data={{ scale: ((overed || active ? 70 : 50) + sizeAdd) * multiplicator }}
         duration={200}
         easing={easingFunc}
       >
@@ -28,15 +41,16 @@ class MapMarker extends React.Component {
               scaledSize: new window.google.maps.Size(data.scale, data.scale),
               url: iconUrl,
             }}
-            zIndex={overed ? 9999999999 : (bigger ? 9999999998 : Math.round(ts / 1000))}
+            zIndex={zIndex}
             onClick={() => !showOnOver && this.props.setActiveMarker(id)}
-            onMouseOver={() => this.props.setOverMarker(id)}
+            onMouseOver={() => this.props.setOverMarker(id, groupId)}
             onMouseOut={() => this.props.setOverMarker(null)}
             visible={!hide}
           >
             { active || (showOnOver && overed) ?
               <InfoWindow
                 position={position}
+                options={{ disableAutoPan }}
                 onCloseClick={() => this.props.setActiveMarker(null)}
               >
                 <MarkerContent {...this.props} />
@@ -54,7 +68,9 @@ class MapMarker extends React.Component {
 
 export default connect((state, props) => ({
   overed: state.overedMarkerId === props.id,
+  overedGroup: props.groupId && state.overedGroupId === props.groupId,
   active: state.activeMarkerId === props.id || state.newMarkerId === props.id,
+  disableAutoPan: state.newMarkerId === props.id,
 }), {
   setOverMarker,
   setActiveMarker,

@@ -6,9 +6,10 @@ import MediaQuery from 'react-responsive';
 import { Animate } from 'react-move';
 import R from 'ramda';
 import MapMarker from './MapMarker';
-import { setActiveMarker, queryFirebaseMessages, queryFirebasePoints, flipForm, setMyPos } from '../actions';
+import { setActiveMarker, queryFirebaseMessages, queryFirebasePoints, queryFirebaseLikes, queryConfig, flipForm, setMyPos } from '../actions';
 import SideCard from './SideCard';
 import { CursorWindow } from './Acclaim';
+import SupporterCounter from './SupporterCounter';
 import 'whatwg-fetch';
 import { typecastRoutes } from './GoogleMapUtil';
 import Script from 'react-load-script';
@@ -73,7 +74,7 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap }) => {
+let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap, mobile, blackListedUsersId }) => {
   const markersRender = (
     <Animate
       default={{ length: 0 }}
@@ -85,11 +86,12 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
       {data =>
         <div>
           {markers && markers
-            .map((marker, i) => (i < data.length &&
+            .map((marker, i) => (i < data.length && !blackListedUsersId.has(marker.userId) &&
               <MapMarker
                 hide={showForm}
                 animation={i > markers.length - 10 ? window.google.maps.Animation.DROP : (i % 10 === 0 ? 4 : 0)}
                 key={marker.id} {...marker} iconUrl={marker.runIcon}
+                mobile={mobile}
             ></MapMarker>))
           }
         </div>
@@ -100,14 +102,20 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
     <GoogleMap
       defaultZoom={zoom}
       defaultCenter={{ lat: 47.43, lng: 2.43 }}
-      defaultOptions={{ styles: mapStyles, disableDefaultUI: true }}
+      defaultOptions={{
+        styles: mapStyles,
+        disableDefaultUI: true,
+        zoomControl: true,
+        minZoom: Math.min(4, zoom),
+        scrollwheel: false,
+        maxZoom: 13 }}
       onClick={() => setActiveMarker(null)}
       ref={onMapLoad}
     >
       { showForm && // Show draggable marker at center of france
         <Marker
           key="geoloc"
-          position={{ lat: 46.8, lng: 2.43 }}
+          position={{ lat: 47.20, lng: 3.03 }}
           draggable
           icon={{
             url: `${ICON_CDN}/Geolocalisation.png`,
@@ -120,14 +128,15 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         </Marker>
       }
       {markersRender}
-      <GoogleMapDirection fragmentsMap={fragmentsMap} asyncMapFragments={asyncMapFragments} />
+      <GoogleMapDirection fragmentsMap={fragmentsMap} asyncMapFragments={asyncMapFragments} mobile={mobile} />
     </GoogleMap>
   );
 };
 
-GoogleMapComp = connect(({ animationDuration, showForm }) => ({
+GoogleMapComp = connect(({ animationDuration, showForm, config }) => ({
   showForm,
   animationDuration,
+  blackListedUsersId: config.blackList,
 }), {
   setMyPos,
 })(GoogleMapComp);
@@ -198,15 +207,19 @@ class GoogleMapWrapper extends React.Component {
     markersFromProps.forEach((marker) => {
       if (prevMarkers[marker.id]) {
         markers[marker.id] = prevMarkers[marker.id];
+        const coord = getCoord(marker);
+        const coordKey = `${coord.lat},${coord.lng}`;
+        allCoords[coordKey] = true;
       } else {
         let coord = getCoord(marker);
         const coordKey = `${coord.lat},${coord.lng}`;
 
         if (allCoords[coordKey]) {
               // Generate a random coordinate around original position
+          const angle = Math.random() * Math.PI * 2;
           coord = {
-            lat: coord.lat + Math.random() / 5 - 0.1,
-            lng: coord.lng + Math.random() / 5 - 0.1,
+            lat: coord.lat + Math.cos(angle) * Math.random() / 10,
+            lng: coord.lng + Math.sin(angle) * Math.random() / 6,
           };
         }
         allCoords[coordKey] = true;
@@ -227,6 +240,8 @@ class GoogleMapWrapper extends React.Component {
     // const maxKey = Math.max(0, ...points.map(o => o.createdAt));
     this.props.queryFirebasePoints(lastPointTs);
     this.props.queryFirebaseMessages(lastMessageTs);
+    this.props.queryFirebaseLikes();
+    this.props.queryConfig();
   }
   componentDidMount() {
     if (this.props.appStarted) {
@@ -319,33 +334,34 @@ class GoogleMapWrapper extends React.Component {
           animationOff={this.state.animationOff}
           onMapLoad={this.onMapLoad}
           fragmentsMap={asyncMapFragments.map(name => this.state[name])}
+          mobile={mobile}
         />
         <div style={mobile ? styles.cardMobile : styles.card} >
           <SideCard mobile={mobile} markers={markers} />
         </div>
         <div style={mobile ? styles.bottomCardMobile : styles.bottomCard} >
-          <p>Encouragez Brian et rejoignez les:</p>
-          <Animate
-            data={{ n: markers.length }}
-            duration={this.props.animationDuration}
-            easing="easeSinOut"
-          >
-            {data => (<div style={{ color: '#26B8D0', paddingTop: 5, fontSize: 35 }}>
-              {Math.round(data.n).toLocaleString('fr', { maximumFractionDigits: 2 }) }
-            </div>)}
-          </Animate>
-          <p style={{ textTransform: 'uppercase', paddingTop: 10, color: '#5F6061', fontSize: 20 }}>supporters</p>
+          <SupporterCounter markersCount={markers.length} />
         </div>
       </div>
     );
 
     return (
       <div style={{ position: 'relative' }}>
-        <MediaQuery query="(max-width: 800px)">
-          {responsiveRender(true)}
+        <MediaQuery maxDeviceWidth={750}>
+          {(matches) => {
+            if (matches) {
+              return responsiveRender(true);
+            }
+            return null;
+          }}
         </MediaQuery>
-        <MediaQuery query="(min-device-width: 800px)" values={{ deviceWidth: 1600 }}>
-          {responsiveRender(false)}
+        <MediaQuery minDeviceWidth={750}>
+          {(matches) => {
+            if (matches) {
+              return responsiveRender(false);
+            }
+            return null;
+          }}
         </MediaQuery>
       </div>
 
@@ -359,11 +375,12 @@ const connectedWrapper = connect(state => ({
   lastPointTs: state.lastPointTs,
   lastMessageTs: state.lastMessageTs,
   appStarted: state.started,
-  animationDuration: state.animationDuration,
 }), {
   setActiveMarker,
   queryFirebasePoints,
   queryFirebaseMessages,
+  queryFirebaseLikes,
+  queryConfig,
   flipForm,
 })(GoogleMapWrapper);
 

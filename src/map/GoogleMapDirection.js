@@ -2,6 +2,7 @@ import React from 'react';
 
 import { withGoogleMap, GoogleMap, Marker, InfoWindow, DirectionsRenderer } from 'react-google-maps';
 import MapMarker from './MapMarker';
+import { connect } from 'react-redux';
 
 const CDN = 'https://d1vfuujltsw10o.cloudfront.net';
 
@@ -67,8 +68,8 @@ const allSteps = [
     date: '8 May 2017',
     city: 'SAINT-GERVAIS',
     place: 'Mairie',
-    address: '30200 Saint-Gervais-les-Bains',
-    coord: '44.185382,4.573707',
+    address: '54 Route de Barjac, 30200 Saint-Gervais',
+    coord: '44.1950098,4.5370845',
   },
   {
     step: 'ETAPE 9',
@@ -187,8 +188,8 @@ const allSteps = [
     date: '23 May 2017',
     city: 'SAINT PALAIS',
     place: 'Mairie',
-    address: 'Place de la République,18200 Saint-Amand-Montrond',
-    coord: '46.7226579,2.5016612',
+    address: '2 Place de la Mairie, 18110 Saint-Palais',
+    coord: '47.2333209,2.4180223',
   },
   {
     step: 'ETAPE 24',
@@ -333,11 +334,35 @@ const allSteps = [
   },
 ];
 
+const stepsIds = allSteps.reduce((acc, o) => { acc[o.step] = true; return acc; });
+
 const addHours = (date, hours) =>
   date.setHours(date.getHours() + hours);
 
+const StepMarkers = ({ mobile }) => (<div>
+  { allSteps.map(step => <MapMarker
+    animation={0}
+    key={step.step}
+    id={step.step}
+    groupId={1}
+    bigger={step.bigger}
+    mobile={mobile}
+    showOnOver
+    smaller={!step.bigger}
+    position={{ lat: +step.coord.split(',')[0], lng: +step.coord.split(',')[1] }}
+    iconUrl={step.icon || (Date.now() > addHours(new Date(step.date), 15) ? `${CDN}/icons/SmallEtape.png` : `${CDN}/icons/SmallEtape_vide.png`)}
+    {...step}
+    type="step"
+  />,
+    )}
+</div>
+  );
 
-export default ({ fragmentsMap, asyncMapFragments }) => {
+// StepMarkers = connect(({ overedMarkerId }) => ({
+//   overedMarkerId === ,
+// }))(StepMarkers);
+
+export default ({ fragmentsMap, asyncMapFragments, mobile }) => {
   for (let i = 0; i < fragmentsMap.length; ++i) {
     if (!fragmentsMap[i]) {
       return null;
@@ -350,18 +375,7 @@ export default ({ fragmentsMap, asyncMapFragments }) => {
     {asyncMapFragments.map((fragment, i) =>
       <DirectionsRenderer key={i} directions={fragmentsMap[i]} options={{ suppressMarkers: true, preserveViewport: true }} />,
     )}
-    { allSteps.map(step => <MapMarker
-      animation={0}
-      key={step.step}
-      id={step.step}
-      bigger={step.bigger}
-      showOnOver
-      smaller={!step.bigger}
-      position={{ lat: +step.coord.split(',')[0], lng: +step.coord.split(',')[1] }}
-      iconUrl={step.icon || Date.now() > addHours(new Date(step.date), 15) ? `${CDN}/icons/SmallEtape.png` : `${CDN}/icons/SmallEtape_vide.png`}
-      {...step}
-      type="step"
-    />)}
+    <StepMarkers mobile={mobile} />
 
   </div>);
 };

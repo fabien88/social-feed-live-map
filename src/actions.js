@@ -17,10 +17,24 @@ export const onMessagesReceived = (snaps) => {
     payload: { messages },
   };
 };
+export const onLikesCountUpdate = (snaps) => {
+  const count = snaps;
+  return {
+    type: 'ON_LIKES_COUNT_UPDATE',
+    payload: { count },
+  };
+};
+export const onConfigUpdate = (snaps) => {
+  const config = snaps;
+  return {
+    type: 'ON_CONFIG_UPDATE',
+    payload: { config },
+  };
+};
 
-export const setOverMarker = markerId => ({
+export const setOverMarker = (markerId, overedGroupId) => ({
   type: 'ON_SET_MARKER_OVER',
-  payload: { markerId },
+  payload: { markerId, overedGroupId },
 });
 
 export const setActiveMarker = markerId => ({
@@ -92,5 +106,27 @@ export const queryFirebaseMessages = lastMessageTs => ({ firebase, dispatch }) =
   return {
     type: 'ON_LAST_MESSAGE_WATCH',
     payload: { lastMessageTs },
+  };
+};
+
+export const queryFirebaseLikes = () => ({ firebase, dispatch }) => {
+  firebase
+      .child('tags/defidemalade/likesCount')
+      .on('value', snap => dispatch(onLikesCountUpdate(snap.val())));
+
+  return {
+    type: 'ON_LAST_LIKES_WATCH',
+    payload: { },
+  };
+};
+
+export const queryConfig = () => ({ firebase, dispatch }) => {
+  firebase
+      .child('tags/defidemalade/config')
+      .on('value', snap => dispatch(onConfigUpdate(snap.val())));
+
+  return {
+    type: 'ON_CONFIG_WATCH',
+    payload: { },
   };
 };

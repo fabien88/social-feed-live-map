@@ -57,7 +57,7 @@ const styles = {
     paddingRight: 60,
   },
   title: {
-    paddingTop: 30,
+    paddingTop: 20,
     textAlign: 'center',
   },
 };
@@ -76,7 +76,7 @@ const CursorWindowW = ({ myPos }) => {
 };
 
 const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
-  const websiteUrl = 'https://defi-respire.fr/#carte';
+  const websiteUrl = 'https://defi-respire.fr/defi-de-malade/#carte';
   const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
   const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/15agGFPU0T`;
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
@@ -110,7 +110,7 @@ export { CursorWindow };
 
 const ActionButton = ({ onClick }) => (
   <div style={styles.btn}>
-    <RaisedButton style={{ width: 300, height: 50 }} labelStyle={{ fontSize: 18 }} primary label="J'encourage Brian" onClick={onClick} />
+    <RaisedButton style={{ width: 250, height: 50 }} labelStyle={{ fontSize: 18 }} primary label="J'encourage Brian" onClick={onClick} />
   </div>
 );
 
@@ -226,7 +226,7 @@ class AcclaimForm extends React.Component {
         <p>1. Votre emplacement</p>
 
         {myPos ?
-          <div style={styles.lngLat}>{`longitude : ${myPos.lng.toFixed(2)}, latitude: ${myPos.lat.toFixed(2)}`}</div>
+          <div style={styles.lngLat}>{`latitude: ${myPos.lat.toFixed(2)}, longitude : ${myPos.lng.toFixed(2)}`}</div>
         :
           <div
             style={{
