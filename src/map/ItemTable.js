@@ -17,7 +17,22 @@ const styles = {
     paddingLeft: 10,
     paddingTop: 10,
   },
+  loader: {
+    position: 'absolute',
+    top: 0,
+    marginLeft: -10,
+    marginTop: '50%',
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+  },
 };
+
+const Loader = () => (
+  <div style={styles.loader} >
+    <img width={60} src="https://d1vfuujltsw10o.cloudfront.net/icons/loader.svg" />
+  </div>
+);
 
 
 const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, userName, ...props }) => {
@@ -40,6 +55,7 @@ const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, 
   if (type === 'tweet' || type === 'retweet') {
     return (
       <div style={{ ...styles.markerInfo, minHeight: 400 }}>
+        <Loader />
         <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
         <TweetEmbed key={id} id={id} options={{ lang: 'fr' }} />
       </div>
@@ -49,9 +65,7 @@ const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, 
   if (type === 'fb') {
     return (
       <div style={{ ...styles.markerInfo, minHeight: 400 }}>
-        {/* <div style={{ paddingBottom: 10 }}>
-          {userName.split(' ').slice(0, 1).join(' ')}          a commenté sur Facebook   : {message}
-        </div> */}
+        <Loader />
         <FacebookProvider appId="296344554144830" language="fr_FR">
           <EmbeddedPost href={postUrl} width={300} />
         </FacebookProvider>

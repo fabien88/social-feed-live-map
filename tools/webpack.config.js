@@ -169,7 +169,7 @@ const config = {
 // Optimize the bundle in release (production) mode
 if (!isDebug) {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: true,
+    sourceMap: false,
     compress: {
       warnings: isVerbose,
     },

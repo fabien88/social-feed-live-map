@@ -1,5 +1,7 @@
 import React from 'react';
-import { withGoogleMap, GoogleMap, Marker, InfoWindow } from 'react-google-maps';
+import { withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
+import MarkerClusterer from 'react-google-maps/lib/addons/MarkerClusterer';
+
 import withScriptjs from 'react-google-maps/lib/async/withScriptjs';
 import { connect } from 'react-redux';
 import MediaQuery from 'react-responsive';
@@ -74,18 +76,58 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
+const clusterStyles = [
+  {
+    // textColor: 'black',
+    textSize: 0.0001,
+    url: `${ICON_CDN}/cluster3_small.png`,
+    anchorIcon: [30, 30],
+    zIndex: 0,
+    // size: 20,
+  },
+  {
+    // textColor: 'white',
+    textSize: 0.0001,
+    url: `${ICON_CDN}/cluster3_small.png`,
+    anchorIcon: [30, 30],
+    zIndex: 0,
+    // height: 1,
+    // width: 1,
+    // size: 1,
+  },
+  {
+    // textColor: 'white',
+    textSize: 0.0001,
+    url: `${ICON_CDN}/cluster3_small.png`,
+    anchorIcon: [30, 30],
+    zIndex: 0,
+    // height: 1,
+    // width: 1,
+    // size: 1,
+  },
+];
+
 let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap, mobile, blackListedUsersId }) => {
   const markersRender = (
-    <Animate
-      default={{ length: 0 }}
-      data={{ length: markers.length }}
-      duration={animationDuration}
-      easing="easeCircleOut"
-      // flexDuration
+    <MarkerClusterer
+      averageCenter
+      // enableRetinaIcons
+      gridSize={40}
+      styles={clusterStyles}
+      minimumClusterSize={100}
+      // imageSizes={1}
+      // imagePath={`${ICON_CDN}/cluster1.png`}
     >
-      {data =>
-        <div>
-          {markers && markers
+      <Animate
+        default={{ length: 0 }}
+        data={{ length: markers.length }}
+        duration={animationDuration}
+        easing="easeCircleOut"
+      // flexDuration
+      >
+        {data =>
+          <div>
+            {markers && markers
             .map((marker, i) => (i < data.length && !blackListedUsersId.has(marker.userId) &&
               <MapMarker
                 hide={showForm}
@@ -94,9 +136,10 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
                 mobile={mobile}
             ></MapMarker>))
           }
-        </div>
+          </div>
       }
-    </Animate>
+      </Animate>
+    </MarkerClusterer>
   );
   return (
     <GoogleMap
@@ -107,7 +150,7 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         disableDefaultUI: true,
         zoomControl: true,
         minZoom: Math.min(4, zoom),
-        scrollwheel: false,
+        // scrollwheel: false,
         maxZoom: 13 }}
       onClick={() => setActiveMarker(null)}
       ref={onMapLoad}
@@ -327,7 +370,7 @@ class GoogleMapWrapper extends React.Component {
           loadingElement={
             <div style={{ height: '100%' }} />
             }
-          containerElement={<div style={{ ...styles.mapBox, height: '100vh' }} />}
+          containerElement={<div style={{ ...styles.mapBox, height: '100vh', userSelect: 'none' }} />}
           mapElement={<div style={{ height: '100%' }} />}
           setActiveMarker={this.props.setActiveMarker}
           markers={markers}
