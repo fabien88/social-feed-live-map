@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import TweetEmbed from 'react-tweet-embed';
 import nl2br from 'react-nl2br';
 import FacebookProvider, { EmbeddedPost, Parser } from 'react-facebook';
+import { Animate } from 'react-move';
 
 import { setOverMarker, setActiveMarker } from '../actions';
 
@@ -29,9 +30,17 @@ const styles = {
 };
 
 const Loader = () => (
-  <div style={styles.loader} >
-    <img width={60} src="https://d1vfuujltsw10o.cloudfront.net/icons/loader.svg" />
-  </div>
+  <Animate
+    default={{ size: 60 }}
+    data={{ size: 0 }}
+    duration={1500}
+    easing="easeElasticIn"
+  >
+    {data =>
+      <div style={styles.loader} >
+        {data.size > 1 && <img alt="loader" width={data.size} src="https://d1vfuujltsw10o.cloudfront.net/icons/loader.svg" />}
+      </div>
+}</Animate>
 );
 
 
