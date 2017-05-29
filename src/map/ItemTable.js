@@ -33,7 +33,7 @@ const Loader = () => (
   <Animate
     default={{ size: 60 }}
     data={{ size: 0 }}
-    duration={1500}
+    duration={500}
     easing="easeElasticIn"
   >
     {data =>

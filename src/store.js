@@ -31,7 +31,7 @@ const initialState = {
   showForm: false,
   myPos: null,
   showThankYou: false,
-  animationDuration: 15000,
+  animationDuration: 10000,
   likesCount: 0,
   config: {
     blackList: new Set(),

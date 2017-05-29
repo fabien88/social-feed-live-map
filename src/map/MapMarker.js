@@ -27,7 +27,7 @@ class MapMarker extends React.Component {
     }
     return (
       <Animate
-        data={{ scale: ((overed || active ? 70 : 50) + sizeAdd) * multiplicator }}
+        data={{ scale: ((overed || active ? 60 : 40) + sizeAdd) * multiplicator }}
         duration={200}
         easing={easingFunc}
       >

@@ -1,0 +1,9 @@
+
+@font-face {
+  font-family: 'Montserrat-Light'; /*a name to be used later*/
+  src: url(./Montserrat-Light.otf)
+}
+
+body,div {
+  font-family: 'Montserrat-Light';
+}

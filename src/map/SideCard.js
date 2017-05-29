@@ -25,10 +25,10 @@ const SideCard = ({ mobile, markers, showForm, flipForm }) => (
     className={s.content}
     flipped={showForm}
   >
-    <div style={{ ...styles.socialBox, width: mobile ? '87vw' : 350, marginTop: mobile ? 125 : 0, minHeight: 620, height: 620 }} >
+    <div style={{ ...styles.socialBox, width: mobile ? '87vw' : 350, marginTop: mobile ? 125 : 0, minHeight: 520, height: 520 }} >
       <ScrollableTable markers={markers.filter(c => c.type === 'message').reverse()} onFlip={flipForm} />
     </div>
-    <div style={{ ...styles.socialBox, width: mobile ? '87vw' : 350, minHeight: 620, height: 620 }} >
+    <div style={{ ...styles.socialBox, width: mobile ? '87vw' : 350, minHeight: 520, height: 520 }} >
       <AcclaimForm onFlip={flipForm} />
     </div>
   </FlipCard>

@@ -1,12 +1,16 @@
 import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import { InfoWindow } from 'react-google-maps';
-
+import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
 import TextField from 'material-ui/TextField';
 import { connect } from 'react-redux';
 import ReCAPTCHA from 'react-google-recaptcha';
 import IconButton from 'material-ui/IconButton';
+import '../fonts/styles.css';
+import s from './styles.css';
+import Ink from 'react-ink';
+
 import {
   ShareButtons,
   ShareCounts,
@@ -32,12 +36,8 @@ const styles = {
     margin: 20,
     textTransform: 'uppercase',
   },
-  btn: {
-    paddingTop: 20,
-    textAlign: 'center',
-  },
   h2: {
-    color: '#26B8D0',
+    color: '#37bcd1',
     textTransform: 'uppercase',
     fontWeight: 400,
     lineHeight: 0.5,
@@ -57,7 +57,10 @@ const styles = {
     paddingRight: 60,
   },
   title: {
-    paddingTop: 20,
+    display: 'flex',
+    justifyItems: 'center',
+    alignItems: 'center',
+    paddingTop: 0,
     textAlign: 'center',
   },
 };
@@ -76,7 +79,7 @@ const CursorWindowW = ({ myPos }) => {
 };
 
 const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
-  const websiteUrl = 'https://defi-respire.fr/defi-de-malade/#carte';
+  const websiteUrl = 'http://bit.ly/2r4Cdnv';
   const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
   const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/15agGFPU0T`;
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
@@ -109,8 +112,19 @@ const CursorWindow = connect(({ myPos }) => ({
 export { CursorWindow };
 
 const ActionButton = ({ onClick }) => (
-  <div style={styles.btn}>
-    <RaisedButton style={{ width: 250, height: 50 }} labelStyle={{ fontSize: 18 }} primary label="J'encourage Brian" onClick={onClick} />
+  <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: 40 }}>
+    <div
+      className={s.btn}
+      style={{ width: 250, position: 'relative' }}
+      // labelStyle={{ fontSize: 18 }}
+      // backgroundColor="#37bcd1"
+      // hoverColor="#37bcd1"
+      // primary
+      // label="J'encourage Brian"
+      onClick={onClick}
+    >      J'encourage Brian
+      <Ink />
+    </div>
   </div>
 );
 
@@ -137,10 +151,6 @@ const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
 
 
         </div>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: 10, lineHeight: 1 }}>{"Nous n'utiliserons pas vos informations personnelles."}</p>
-          <p style={{ fontSize: 10, lineHeight: 1 }}>{'Nous ne pourrons être tenus responsables du contenu de votre message.'}</p>
-        </div>
       </div>
 
     );
@@ -148,9 +158,14 @@ const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
   return (
     <div style={{ paddingLeft: 20, paddingRight: 20 }}>
       <div style={styles.title}>
-        <img width={100} src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png" alt="megaphone" />
-        <h2 style={styles.h2} >Cours brian,</h2>
-        <h2 style={styles.h2}>Cours !</h2>
+        <div>
+          <img width={100} style={{ paddingRight: 20 }} src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png" alt="megaphone" />
+        </div>
+        <div>
+          <h2 style={styles.h2} >Cours brian,</h2>
+          <h2 style={styles.h2}>Cours !</h2>
+        </div>
+
       </div>
       <p>Brian arrive à Paris, et aura déjà parcouru plus de 900km.</p>
       <p>Pour l&apos;encourager dans cette dernière ligne droite jusqu&apos;à
@@ -216,7 +231,7 @@ class AcclaimForm extends React.Component {
 
     return (
       <div style={styles.form}>
-        <div onClick={onFlip} style={{ textAlign: 'right', marginRight: -20, marginTop: -20 }}>
+        <div onClick={onFlip} style={{ position: 'absolute', textAlign: 'right', top: 3, right: 3 }}>
           <IconButton>
             <img alt="close" width={30} src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png" />
           </IconButton>
@@ -238,7 +253,7 @@ class AcclaimForm extends React.Component {
 
         <TextField
           defaultValue=""
-          floatingLabelText="2. Votre nom"
+          floatingLabelText="2. Votre nom et prénom"
           errorText={nameEmptyErr && 'Veuillez remplir ce champ'}
           onChange={(el) => {
             const val = el.target.value;
@@ -296,6 +311,11 @@ class AcclaimForm extends React.Component {
             />
           </div>
         </form>
+
+        <div style={{ textAlign: 'center', textTransform: 'none', paddingTop: 36, paddingLeft: 40 }}>
+          <p style={{ fontSize: 10, lineHeight: 1 }}>{"Nous n'utiliserons pas vos informations personnelles."}</p>
+          <p style={{ fontSize: 10, lineHeight: 1 }}>{'Nous ne pourrons être tenus responsables du contenu de votre message.'}</p>
+        </div>
 
 
       </div>

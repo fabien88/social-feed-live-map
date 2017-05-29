@@ -76,43 +76,39 @@ const getCoord = marker => ({
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-const clusterStyles = [
-  {
-    // textColor: 'black',
-    textSize: 0.0001,
-    url: `${ICON_CDN}/cluster3_small.png`,
-    anchorIcon: [30, 30],
-    zIndex: 0,
-    // size: 20,
-  },
-  {
-    // textColor: 'white',
-    textSize: 0.0001,
-    url: `${ICON_CDN}/cluster3_small.png`,
-    anchorIcon: [30, 30],
-    zIndex: 0,
-    // height: 1,
-    // width: 1,
-    // size: 1,
-  },
-  {
-    // textColor: 'white',
-    textSize: 0.0001,
-    url: `${ICON_CDN}/cluster3_small.png`,
-    anchorIcon: [30, 30],
-    zIndex: 0,
-    // height: 1,
-    // width: 1,
-    // size: 1,
-  },
-];
 
 let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap, mobile, blackListedUsersId }) => {
+  const iconSize = showForm ? 0 : (mobile ? 31 : 70);
+  const clusterStyles = [
+    {
+      textSize: 0.0001,
+      url: `${ICON_CDN}/svg/cluster_1.svg`,
+      zIndex: 0,
+      height: iconSize,
+      width: iconSize,
+    },
+    {
+      // textColor: 'white',
+      textSize: 0.0001,
+      url: `${ICON_CDN}/svg/cluster_1.svg`,
+      zIndex: 0,
+      height: iconSize,
+      width: iconSize,
+    },
+    {
+      // textColor: 'white',
+      textSize: 0.0001,
+      url: `${ICON_CDN}/svg/cluster_1.svg`,
+      zIndex: 0,
+      height: iconSize,
+      width: iconSize,
+    },
+  ];
   const markersRender = (
     <MarkerClusterer
       averageCenter
       // enableRetinaIcons
-      gridSize={40}
+      gridSize={mobile ? 10 : 40}
       styles={clusterStyles}
       minimumClusterSize={100}
       // imageSizes={1}
@@ -124,11 +120,12 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         duration={animationDuration}
         easing="easeCircleOut"
       // flexDuration
+
       >
         {data =>
           <div>
             {markers && markers
-            .map((marker, i) => (i < data.length && !blackListedUsersId.has(marker.userId) &&
+            .map((marker, i) => (i < data.length && !(blackListedUsersId.has(marker.userId) || blackListedUsersId.has(marker.id)) &&
               <MapMarker
                 hide={showForm}
                 animation={i > markers.length - 10 ? window.google.maps.Animation.DROP : (i % 10 === 0 ? 4 : 0)}
@@ -149,8 +146,11 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         styles: mapStyles,
         disableDefaultUI: true,
         zoomControl: true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_TOP,
+        },
         minZoom: Math.min(4, zoom),
-        // scrollwheel: false,
+        scrollwheel: false,
         maxZoom: 13 }}
       onClick={() => setActiveMarker(null)}
       ref={onMapLoad}
@@ -353,6 +353,7 @@ class GoogleMapWrapper extends React.Component {
 
   render() {
     const markers = R.sortBy(R.prop('ts'))(Object.values(this.state.markers));
+    // const markers = R.sortBy(R.prop('lat'))(Object.values(this.state.markers));
 
     const responsiveRender = mobile => (
       <div>
