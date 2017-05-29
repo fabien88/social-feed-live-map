@@ -40,7 +40,7 @@ const styles = {
     color: '#37bcd1',
     textTransform: 'uppercase',
     fontWeight: 400,
-    lineHeight: 0.5,
+    lineHeight: 1,
     fontSize: 25,
   },
   center: {
@@ -93,7 +93,7 @@ const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
         url={websiteUrl}
         title="J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose"
         description={facebookMessage}
-        picture="http://d1vfuujltsw10o.cloudfront.net/Visuel_Partage_Carte.jpg"
+        picture="https://d1vfuujltsw10o.cloudfront.net/Visuel_Partage_Carte.jpg"
       >
         <FacebookIcon size={size} round />
       </FacebookShareButton>
@@ -144,7 +144,7 @@ const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
             <h2 style={styles.h2} >Merci !</h2>
           </div>
           <p>Et hop, un encouragement de plus, merci à vous&nbsp;!</p>
-          <p style={{ paddingTop: 30 }}>Multipliez les encouragements pour Brian en partagean la carte&nbsp;!</p>
+          <p style={{ paddingTop: 30 }}>Multipliez les encouragements pour Brian en partageant la carte&nbsp;!</p>
           <div style={{ paddingTop: 50, textAlign: 'center', paddingBottom: 100 }}>
             <ShareIcons size={60} flexJustify="center" />
           </div>
@@ -162,8 +162,7 @@ const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
           <img width={100} style={{ paddingRight: 20 }} src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png" alt="megaphone" />
         </div>
         <div>
-          <h2 style={styles.h2} >Cours brian,</h2>
-          <h2 style={styles.h2}>Cours !</h2>
+          <h2 style={styles.h2} >Cours brian,<br />Cours !</h2>
         </div>
 
       </div>
@@ -171,7 +170,7 @@ const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
       <p>Pour l&apos;encourager dans cette dernière ligne droite jusqu&apos;à
            Calais, vous pouvez le soutenir symboliquement dès maintenant
            en vous ajoutant sur cette carte.</p>
-      <p>Sinon il suffit de Tweeter votre soutien avec le hashtag <a target="_blank" href="https://twitter.com/search?q=%23defidemalade&lang=fr">#DefiDeMalade</a> en activant la géolocalisation</p>
+      <p>Sinon il suffit de Tweeter votre soutien avec le hashtag <a style={{ color: '#37bcd1', textDecoration: 'none' }} target="_blank" href="https://twitter.com/search?q=%23defidemalade&lang=fr">#DefiDeMalade</a> en activant la géolocalisation</p>
       <ActionButton onClick={onClick} />
 
       <div style={{ paddingTop: 50, textTransform: 'uppercase', fontWeight: 600, textAlign: 'right' }}>
