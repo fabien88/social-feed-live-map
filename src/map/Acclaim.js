@@ -81,7 +81,7 @@ const CursorWindowW = ({ myPos }) => {
 const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
   const websiteUrl = 'http://bit.ly/2r4Cdnv';
   const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
-  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/15agGFPU0T`;
+  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
   return (
     <div style={{ display: 'flex', justifyContent: flexJustify, alignItems: 'center' }}>
