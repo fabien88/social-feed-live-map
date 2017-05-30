@@ -356,7 +356,7 @@ class GoogleMapWrapper extends React.Component {
     // const markers = R.sortBy(R.prop('lat'))(Object.values(this.state.markers));
 
     const responsiveRender = mobile => (
-      <div>
+      <div style={{ minHeight: mobile ? 1500 : null }}>
         {asyncMapFragments.map((name, i) =>
           <Script
             url={asyncMapFragmentsUrls[i]}
@@ -371,7 +371,7 @@ class GoogleMapWrapper extends React.Component {
           loadingElement={
             <div style={{ height: '100%' }} />
             }
-          containerElement={<div style={{ ...styles.mapBox, height: '100vh', userSelect: 'none' }} />}
+          containerElement={<div style={{ ...styles.mapBox, height: mobile ? '700px' : '100vh', userSelect: 'none' }} />}
           mapElement={<div style={{ height: '100%' }} />}
           setActiveMarker={this.props.setActiveMarker}
           markers={markers}
