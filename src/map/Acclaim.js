@@ -70,7 +70,9 @@ const CursorWindowW = ({ myPos }) => {
     return null;
   }
   return (
-    <InfoWindow >
+    <InfoWindow
+      options={{ disableAutoPan: false }}
+    >
       <div style={{ maxWidth: 200, textAlign: 'center', padding: 10 }}>
         Faites glisser le curseur bleu pour vous localiser sur la carte
       </div>
@@ -81,7 +83,7 @@ const CursorWindowW = ({ myPos }) => {
 const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
   const websiteUrl = 'http://bit.ly/2r4Cdnv';
   const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
-  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
+  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/F65A33Mj7R`;
   const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
   return (
     <div style={{ display: 'flex', justifyContent: flexJustify, alignItems: 'center' }}>

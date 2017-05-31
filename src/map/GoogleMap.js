@@ -110,7 +110,7 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
       // enableRetinaIcons
       gridSize={mobile ? 10 : 40}
       styles={clusterStyles}
-      minimumClusterSize={100}
+      minimumClusterSize={mobile ? 10 : 100}
       // imageSizes={1}
       // imagePath={`${ICON_CDN}/cluster1.png`}
     >

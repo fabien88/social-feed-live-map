@@ -4,6 +4,7 @@ import TweetEmbed from 'react-tweet-embed';
 import nl2br from 'react-nl2br';
 import FacebookProvider, { EmbeddedPost, Parser } from 'react-facebook';
 import { Animate } from 'react-move';
+const HotKey = require('react-shortcut');
 
 import { setOverMarker, setActiveMarker } from '../actions';
 
@@ -44,69 +45,90 @@ const Loader = () => (
 );
 
 
-const MarkerContent = ({ id, type, ts, profile, userId, message, name, postUrl, userName, ...props }) => {
-  if (type === 'step') {
-    const { step, city, place, address, date } = props;
-    return (
-      <div style={{ ...styles.markerInfo }}>
-        <div style={{ fontWeight: 700 }}>
-          {new Date(date).toLocaleDateString()} {step}
+class MarkerContent extends React.Component {
+
+  state={};
+
+  onKeysDetails = () => {
+    this.setState({ showDetails: !this.state.showDetails });
+  }
+
+  render() {
+    const { id, type, ts, profile, userId, message, name, postUrl, userName, ...props } = this.props;
+    let content = null;
+    if (type === 'step') {
+      const { step, city, place, address, date } = props;
+      content = (
+        <div style={{ ...styles.markerInfo }}>
+          <div style={{ fontWeight: 700 }}>
+            {new Date(date).toLocaleDateString()} {step}
+          </div>
+          <div>
+            {city}            , arrivée vers 14h-15h
+          </div>
+          <div>
+            {place}            - {address}
+          </div>
         </div>
+      );
+    }
+    if (type === 'tweet' || type === 'retweet') {
+      content = (
+        <div style={{ ...styles.markerInfo, minHeight: 400 }}>
+          <Loader />
+          <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
+          <TweetEmbed key={id} id={id} options={{ lang: 'fr' }} />
+        </div>
+
+      );
+    }
+    if (type === 'fb') {
+      content = (
+        <div style={{ ...styles.markerInfo, minHeight: 400 }}>
+          <Loader />
+          <FacebookProvider appId="296344554144830" language="fr_FR">
+            <EmbeddedPost href={postUrl} width={300} />
+          </FacebookProvider>
+
+          <FacebookProvider appId="296344554144830" language="fr_FR" >
+            <Parser>
+              <div
+                className="fb-comment-embed"
+                data-href={`${postUrl}/?comment_id=${id}`}
+                data-width={300}
+              />
+            </Parser>
+          </FacebookProvider>
+
+        </div>
+      );
+    }
+    if (type === 'message') {
+      content = (
         <div>
-          {city}          , arrivée vers 14h-15h
+
+          <div style={{ paddingRight: 50, paddingTop: 10, paddingLeft: 5 }}>
+            {nl2br(message)}
+          </div>
+          <div style={{ paddingTop: 10, textAlign: 'right' }}>
+            {name}
+          </div>
         </div>
-        <div>
-          {place}          - {address}
-        </div>
-      </div>
-    );
-  }
-  if (type === 'tweet' || type === 'retweet') {
+      );
+    }
     return (
-      <div style={{ ...styles.markerInfo, minHeight: 400 }}>
-        <Loader />
-        <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
-        <TweetEmbed key={id} id={id} options={{ lang: 'fr' }} />
-      </div>
-
-    );
-  }
-  if (type === 'fb') {
-    return (
-      <div style={{ ...styles.markerInfo, minHeight: 400 }}>
-        <Loader />
-        <FacebookProvider appId="296344554144830" language="fr_FR">
-          <EmbeddedPost href={postUrl} width={300} />
-        </FacebookProvider>
-
-        <FacebookProvider appId="296344554144830" language="fr_FR" >
-          <Parser>
-            <div
-              className="fb-comment-embed"
-              data-href={`${postUrl}/?comment_id=${id}`}
-              data-width={300}
-            />
-          </Parser>
-        </FacebookProvider>
-
+      <div style={{ userSelect: 'text' }}>
+        <HotKey
+          keys={['shift', 'd']}
+          simultaneous
+          onKeysCoincide={this.onKeysDetails}
+        />
+        {this.state.showDetails && (userId || id)}
+        {content}
       </div>
     );
   }
-  if (type === 'message') {
-    return (
-      <div>
-
-        <div style={{ paddingRight: 50, paddingTop: 10, paddingLeft: 5 }}>
-          {nl2br(message)}
-        </div>
-        <div style={{ paddingTop: 10, textAlign: 'right' }}>
-          {name}
-        </div>
-      </div>
-    );
-  }
-  return null;
-};
+}
 
 
 class ItemTable extends React.Component {
