@@ -6,24 +6,39 @@ import { setOverMarker, setActiveMarker } from '../actions';
 import { MarkerContent } from './ItemTable';
 const easingFunc = (t, s = 5) => --t * t * ((s + 1) * t + s) + 1;
 
-
 class MapMarker extends React.Component {
-
   render() {
-    const { position, id, iconUrl, active, overed, ts, animation, hide, mobile, bigger, smaller, showOnOver, disableAutoPan, groupId, overedGroup } = this.props;
-    const sizeAdd = bigger ? 30 : (smaller ? -20 : 0);
+    const {
+      position,
+      id,
+      iconUrl,
+      active,
+      overed,
+      ts,
+      animation,
+      hide,
+      mobile,
+      bigger,
+      smaller,
+      showOnOver,
+      disableAutoPan,
+      groupId,
+      overedGroup,
+    } = this.props;
+    const sizeAdd = bigger ? 30 : smaller ? -20 : 0;
     const multiplicator = mobile ? 0.5 : 1;
 
     let zIndex = 0;
     if (overed || overedGroup) {
-      zIndex = 9999999999; // Show on top
+      zIndex = 99999998; // Show on top
       if (bigger) {
         zIndex += 10;
       }
     } else if (bigger) {
-      zIndex = 9999999998; // For Paris and PasDeCalais flags
+      zIndex = 99999999; // For Paris and PasDeCalais flags
+      console.log('bigger');
     } else {
-      zIndex = Math.round(ts / 1000); // Last ts are show on top first
+      zIndex = Math.round(ts / 1000000); // Last ts are show on top first
     }
     return (
       <Animate
@@ -47,7 +62,7 @@ class MapMarker extends React.Component {
             onMouseOut={() => this.props.setOverMarker(null)}
             visible={!hide}
           >
-            { active || (showOnOver && overed) ?
+            {active || (showOnOver && overed) ? (
               <InfoWindow
                 position={position}
                 options={{ disableAutoPan }}
@@ -55,23 +70,23 @@ class MapMarker extends React.Component {
               >
                 <MarkerContent {...this.props} />
               </InfoWindow>
-                : null
-              }
+            ) : null}
           </Marker>
-
         )}
       </Animate>
-
     );
   }
 }
 
-export default connect((state, props) => ({
-  overed: state.overedMarkerId === props.id,
-  overedGroup: props.groupId && state.overedGroupId === props.groupId,
-  active: state.activeMarkerId === props.id || state.newMarkerId === props.id,
-  disableAutoPan: state.newMarkerId === props.id,
-}), {
-  setOverMarker,
-  setActiveMarker,
-})(MapMarker);
+export default connect(
+  (state, props) => ({
+    overed: state.overedMarkerId === props.id,
+    overedGroup: props.groupId && state.overedGroupId === props.groupId,
+    active: state.activeMarkerId === props.id || state.newMarkerId === props.id,
+    disableAutoPan: state.newMarkerId === props.id,
+  }),
+  {
+    setOverMarker,
+    setActiveMarker,
+  },
+)(MapMarker);

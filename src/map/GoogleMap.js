@@ -8,7 +8,15 @@ import MediaQuery from 'react-responsive';
 import { Animate } from 'react-move';
 import R from 'ramda';
 import MapMarker from './MapMarker';
-import { setActiveMarker, queryFirebaseMessages, queryFirebasePoints, queryFirebaseLikes, queryConfig, flipForm, setMyPos } from '../actions';
+import {
+  setActiveMarker,
+  queryFirebaseMessages,
+  queryFirebasePoints,
+  queryFirebaseLikes,
+  queryConfig,
+  flipForm,
+  setMyPos,
+} from '../actions';
 import SideCard from './SideCard';
 import { CursorWindow } from './Acclaim';
 import SupporterCounter from './SupporterCounter';
@@ -22,11 +30,12 @@ const mapStyles = require('./GoogleMapStyle.json');
 const CDN = 'https://d1vfuujltsw10o.cloudfront.net';
 const ICON_CDN = `${CDN}/icons`;
 
-
 const asyncMapFragments = [1, 2].map(i => `geocodeSteps${i}`);
 const asyncMapFragmentsUrls = asyncMapFragments.map(name => `${CDN}/map/${name}.js`);
 
-const humanIcons = [1, 2, 3, 4, 5].map(idx => `${ICON_CDN}/Encouragement_Homme_DefiRespire${idx}.png`);
+const humanIcons = [1, 2, 3, 4, 5].map(
+  idx => `${ICON_CDN}/Encouragement_Homme_DefiRespire${idx}.png`,
+);
 const getRandomIcon = () => humanIcons[Math.round(Math.random() * (humanIcons.length - 1))];
 
 const styles = {
@@ -72,13 +81,25 @@ const styles = {
 };
 
 const getCoord = marker => ({
-  lat: marker.coord ? marker.coord.latitude : 48.856614,  // Paris
+  lat: marker.coord ? marker.coord.latitude : 48.856614, // Paris
   lng: marker.coord ? marker.coord.longitude : 2.3522219,
 });
 
-
-let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, animationDuration, animationOff, onMapLoad, fragmentsMap, mobile, blackListedUsersId }) => {
-  const iconSize = showForm ? 0 : (mobile ? 31 : 70);
+let GoogleMapComp = ({
+  markers,
+  setActiveMarker,
+  zoom,
+  showForm,
+  setMyPos,
+  animationDuration,
+  animationOff,
+  onMapLoad,
+  fragmentsMap,
+  mobile,
+  blackListedUsersId,
+  challenges,
+}) => {
+  const iconSize = showForm ? 0 : mobile ? 31 : 70;
   const clusterStyles = [
     {
       textSize: 0.0001,
@@ -119,22 +140,35 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         data={{ length: markers.length }}
         duration={animationDuration}
         easing="easeCircleOut"
-      // flexDuration
-
+        // flexDuration
       >
-        {data =>
+        {data => (
           <div>
-            {markers && markers
-            .map((marker, i) => (i < data.length && !(blackListedUsersId.has(marker.userId) || blackListedUsersId.has(marker.id)) &&
-              <MapMarker
-                hide={showForm}
-                animation={i > markers.length - 10 ? window.google.maps.Animation.DROP : (i % 10 === 0 ? 4 : 0)}
-                key={marker.id} {...marker} iconUrl={marker.runIcon}
-                mobile={mobile}
-            ></MapMarker>))
-          }
+            {markers &&
+              markers.map((marker, i) => {
+                if (
+                  i < data.length &&
+                  !(blackListedUsersId.has(marker.userId) || blackListedUsersId.has(marker.id))
+                ) {
+                  return (
+                    <MapMarker
+                      hide={showForm}
+                      animation={
+                        i > markers.length - 10
+                          ? window.google.maps.Animation.DROP
+                          : i % 10 === 0 ? 4 : 0
+                      }
+                      key={marker.id}
+                      {...marker}
+                      iconUrl={marker.runIcon}
+                      mobile={mobile}
+                    />
+                  );
+                }
+                return null;
+              })}
           </div>
-      }
+        )}
       </Animate>
     </MarkerClusterer>
   );
@@ -151,14 +185,15 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         },
         minZoom: Math.min(4, zoom),
         scrollwheel: false,
-        maxZoom: 13 }}
+        maxZoom: 13,
+      }}
       onClick={() => setActiveMarker(null)}
       ref={onMapLoad}
     >
-      { showForm && // Show draggable marker at center of france
+      {showForm && ( // Show draggable marker at center of france
         <Marker
           key="geoloc"
-          position={{ lat: 47.20, lng: 3.03 }}
+          position={{ lat: 47.2, lng: 3.03 }}
           draggable
           icon={{
             url: `${ICON_CDN}/Geolocalisation.png`,
@@ -169,24 +204,40 @@ let GoogleMapComp = ({ markers, setActiveMarker, zoom, showForm, setMyPos, anima
         >
           <CursorWindow />
         </Marker>
-      }
+      )}
       {markersRender}
-      <GoogleMapDirection fragmentsMap={fragmentsMap} asyncMapFragments={asyncMapFragments} mobile={mobile} />
+      {challenges.map(({ latitude, longitude, ...challenge }, i) => (
+        <MapMarker
+          hide={showForm}
+          animation={window.google.maps.Animation.DROP}
+          key={`challenge.${i}`}
+          id={`challenge.${i}`}
+          type="challenge"
+          iconUrl={`${ICON_CDN}/Geolocalisation.png`}
+          mobile={mobile}
+          position={{ lat: Number(latitude), lng: Number(longitude) }}
+          bigger
+          {...challenge}
+          smaller={false}
+        />
+      ))}
     </GoogleMap>
   );
 };
 
-GoogleMapComp = connect(({ animationDuration, showForm, config }) => ({
-  showForm,
-  animationDuration,
-  blackListedUsersId: config.blackList,
-}), {
-  setMyPos,
-})(GoogleMapComp);
+GoogleMapComp = connect(
+  ({ animationDuration, showForm, config }) => ({
+    showForm,
+    animationDuration,
+    blackListedUsersId: config.blackList,
+    challenges: config.challenges || [],
+  }),
+  {
+    setMyPos,
+  },
+)(GoogleMapComp);
 
-GoogleMapComp = withScriptjs(
-  withGoogleMap(GoogleMapComp),
-);
+GoogleMapComp = withScriptjs(withGoogleMap(GoogleMapComp));
 
 const steps1 = [
   'Chemin du Pouverel, 83390 Cuers',
@@ -258,7 +309,7 @@ class GoogleMapWrapper extends React.Component {
         const coordKey = `${coord.lat},${coord.lng}`;
 
         if (allCoords[coordKey]) {
-              // Generate a random coordinate around original position
+          // Generate a random coordinate around original position
           const angle = Math.random() * Math.PI * 2;
           coord = {
             lat: coord.lat + Math.cos(angle) * Math.random() / 10,
@@ -270,12 +321,11 @@ class GoogleMapWrapper extends React.Component {
           ...marker,
           runIcon: getRandomIcon(),
           position: { lat: coord.lat, lng: coord.lng },
-          lat: coord.lat,
         };
       }
     });
     return markers;
-  }
+  };
 
   initFirebase() {
     const lastPointTs = this.props.lastPointTs;
@@ -307,19 +357,20 @@ class GoogleMapWrapper extends React.Component {
     const globalRouteFromExtJs = window[routeName]; // Loaded from external js
     if (globalRouteFromExtJs && window.google && window.google.maps) {
       typecastRoutes(globalRouteFromExtJs.routes);
-      this.setState({ [routeName]: {
-        routes: globalRouteFromExtJs.routes,
-        request: {
-          travelMode: window.google.maps.TravelMode.WALKING,
+      this.setState({
+        [routeName]: {
+          routes: globalRouteFromExtJs.routes,
+          request: {
+            travelMode: window.google.maps.TravelMode.WALKING,
+          },
         },
-      } });
+      });
       window[routeName] = null;
     }
-  }
+  };
   onMapLoad = () => {
     this.transformRoute('geocodeSteps1');
     this.transformRoute('geocodeSteps2');
-
 
     // if (!this.state.route1 && !this.state.route2) {
     //   const loadForStep = (steps, stepName) => {
@@ -349,7 +400,7 @@ class GoogleMapWrapper extends React.Component {
     //   loadForStep(steps1, 'route1');
     //   loadForStep(steps2, 'route2');
     // }
-  }
+  };
 
   render() {
     const markers = R.sortBy(R.prop('ts'))(Object.values(this.state.markers));
@@ -357,21 +408,23 @@ class GoogleMapWrapper extends React.Component {
 
     const responsiveRender = mobile => (
       <div style={{ minHeight: mobile ? 1500 : null }}>
-        {asyncMapFragments.map((name, i) =>
+        {asyncMapFragments.map((name, i) => (
           <Script
             url={asyncMapFragmentsUrls[i]}
             key={name}
             onError={console.log}
             onLoad={() => this.transformRoute(name)}
-          />,
-        )}
+          />
+        ))}
         <GoogleMapComp
           googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry&key=AIzaSyDfyjrkHc0y1l4OzqfFV2noO2906f1RNuY"
           zoom={mobile ? 5 : 7}
-          loadingElement={
-            <div style={{ height: '100%' }} />
-            }
-          containerElement={<div style={{ ...styles.mapBox, height: mobile ? '700px' : '100vh', userSelect: 'none' }} />}
+          loadingElement={<div style={{ height: '100%' }} />}
+          containerElement={
+            <div
+              style={{ ...styles.mapBox, height: mobile ? '700px' : '100vh', userSelect: 'none' }}
+            />
+          }
           mapElement={<div style={{ height: '100%' }} />}
           setActiveMarker={this.props.setActiveMarker}
           markers={markers}
@@ -380,11 +433,11 @@ class GoogleMapWrapper extends React.Component {
           fragmentsMap={asyncMapFragments.map(name => this.state[name])}
           mobile={mobile}
         />
-        <div style={mobile ? styles.cardMobile : styles.card} >
-          <SideCard mobile={mobile} markers={markers} />
-        </div>
-        <div style={mobile ? styles.bottomCardMobile : styles.bottomCard} >
+        <div style={mobile ? styles.bottomCardMobile : styles.bottomCard}>
           <SupporterCounter markersCount={markers.length} />
+        </div>
+        <div style={mobile ? styles.cardMobile : styles.card}>
+          <SideCard mobile={mobile} markers={markers} />
         </div>
       </div>
     );
@@ -408,24 +461,25 @@ class GoogleMapWrapper extends React.Component {
           }}
         </MediaQuery>
       </div>
-
-
     );
   }
 }
 
-const connectedWrapper = connect(state => ({
-  points: state.points,
-  lastPointTs: state.lastPointTs,
-  lastMessageTs: state.lastMessageTs,
-  appStarted: state.started,
-}), {
-  setActiveMarker,
-  queryFirebasePoints,
-  queryFirebaseMessages,
-  queryFirebaseLikes,
-  queryConfig,
-  flipForm,
-})(GoogleMapWrapper);
+const connectedWrapper = connect(
+  state => ({
+    points: state.points,
+    lastPointTs: state.lastPointTs,
+    lastMessageTs: state.lastMessageTs,
+    appStarted: state.started,
+  }),
+  {
+    setActiveMarker,
+    queryFirebasePoints,
+    queryFirebaseMessages,
+    queryFirebaseLikes,
+    queryConfig,
+    flipForm,
+  },
+)(GoogleMapWrapper);
 
 export default connectedWrapper;

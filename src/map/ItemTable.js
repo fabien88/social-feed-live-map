@@ -31,30 +31,41 @@ const styles = {
 };
 
 const Loader = () => (
-  <Animate
-    default={{ size: 60 }}
-    data={{ size: 0 }}
-    duration={500}
-    easing="easeElasticIn"
-  >
-    {data =>
-      <div style={styles.loader} >
-        {data.size > 1 && <img alt="loader" width={data.size} src="https://d1vfuujltsw10o.cloudfront.net/icons/loader.svg" />}
+  <Animate default={{ size: 60 }} data={{ size: 0 }} duration={500} easing="easeElasticIn">
+    {data => (
+      <div style={styles.loader}>
+        {data.size > 1 ? (
+          <img
+            alt="loader"
+            src="https://d1vfuujltsw10o.cloudfront.net/icons/loader.svg"
+            width={data.size}
+          />
+        ) : null}
       </div>
-}</Animate>
+    )}
+  </Animate>
 );
 
-
 class MarkerContent extends React.Component {
-
-  state={};
+  state = {};
 
   onKeysDetails = () => {
     this.setState({ showDetails: !this.state.showDetails });
-  }
+  };
 
   render() {
-    const { id, type, ts, profile, userId, message, name, postUrl, userName, ...props } = this.props;
+    const {
+      id,
+      type,
+      ts,
+      profile,
+      userId,
+      message,
+      name,
+      postUrl,
+      userName,
+      ...props
+    } = this.props;
     let content = null;
     if (type === 'step') {
       const { step, city, place, address, date } = props;
@@ -63,23 +74,34 @@ class MarkerContent extends React.Component {
           <div style={{ fontWeight: 700 }}>
             {new Date(date).toLocaleDateString()} {step}
           </div>
-          <div>
-            {city}            , arrivée vers 14h-15h
-          </div>
+          <div>{city} , arrivée vers 14h-15h</div>
           <div>
             {place}            - {address}
           </div>
         </div>
       );
     }
+    if (type === 'challenge') {
+      const { description, link } = props;
+      content = (
+        <div style={{ ...styles.markerInfo }}>
+          <div style={{ fontWeight: 700, paddingBottom: 10 }}>{name}</div>
+          <div style={{ paddingBottom: 10 }}>{description}</div>
+          <div style={{ paddingBottom: 10 }}>
+            <a href={link}>{link}</a>
+          </div>
+        </div>
+      );
+    }
+
     if (type === 'tweet' || type === 'retweet') {
       content = (
         <div style={{ ...styles.markerInfo, minHeight: 400 }}>
           <Loader />
-          <img src={profile} style={styles.profile} />{` a ${type === 'retweet' ? 're' : ''}tweeté :`}
+          <img src={profile} style={styles.profile} />
+          {` a ${type === 'retweet' ? 're' : ''}tweeté :`}
           <TweetEmbed key={id} id={id} options={{ lang: 'fr' }} />
         </div>
-
       );
     }
     if (type === 'fb') {
@@ -90,7 +112,7 @@ class MarkerContent extends React.Component {
             <EmbeddedPost href={postUrl} width={300} />
           </FacebookProvider>
 
-          <FacebookProvider appId="296344554144830" language="fr_FR" >
+          <FacebookProvider appId="296344554144830" language="fr_FR">
             <Parser>
               <div
                 className="fb-comment-embed"
@@ -99,30 +121,20 @@ class MarkerContent extends React.Component {
               />
             </Parser>
           </FacebookProvider>
-
         </div>
       );
     }
     if (type === 'message') {
       content = (
         <div>
-
-          <div style={{ paddingRight: 50, paddingTop: 10, paddingLeft: 5 }}>
-            {nl2br(message)}
-          </div>
-          <div style={{ paddingTop: 10, textAlign: 'right' }}>
-            {name}
-          </div>
+          <div style={{ paddingRight: 50, paddingTop: 10, paddingLeft: 5 }}>{nl2br(message)}</div>
+          <div style={{ paddingTop: 10, textAlign: 'right' }}>{name}</div>
         </div>
       );
     }
     return (
       <div style={{ userSelect: 'text' }}>
-        <HotKey
-          keys={['shift', 'd']}
-          simultaneous
-          onKeysCoincide={this.onKeysDetails}
-        />
+        <HotKey keys={['shift', 'd']} simultaneous onKeysCoincide={this.onKeysDetails} />
         {this.state.showDetails && (userId || id)}
         {content}
       </div>
@@ -130,10 +142,7 @@ class MarkerContent extends React.Component {
   }
 }
 
-
 class ItemTable extends React.Component {
-
-
   render() {
     let { marker, setOverMarker, markers } = this.props;
     if (markers) {
@@ -151,7 +160,9 @@ class ItemTable extends React.Component {
       <div
         onMouseOver={() => setOverMarker(marker.id)}
         onMouseOut={() => setOverMarker(null)}
-        ref={(c) => { this.obj = c; }}
+        ref={(c) => {
+          this.obj = c;
+        }}
       >
         <MarkerContent {...marker} />
       </div>
@@ -159,11 +170,14 @@ class ItemTable extends React.Component {
   }
 }
 export { MarkerContent };
-export default connect((state, props) => ({
-  overed: state.overedMarkerId === props.marker.id,
-  active: state.activeMarkerId === props.marker.id,
-  activeMarkerId: props.markers ? state.activeMarkerId : null,
-}), {
-  setOverMarker,
-  setActiveMarker,
-})(ItemTable);
+export default connect(
+  (state, props) => ({
+    overed: state.overedMarkerId === props.marker.id,
+    active: state.activeMarkerId === props.marker.id,
+    activeMarkerId: props.markers ? state.activeMarkerId : null,
+  }),
+  {
+    setOverMarker,
+    setActiveMarker,
+  },
+)(ItemTable);
