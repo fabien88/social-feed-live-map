@@ -25,7 +25,7 @@ class MapMarker extends React.Component {
       groupId,
       overedGroup,
     } = this.props;
-    const sizeAdd = bigger ? 30 : smaller ? -20 : 0;
+    const sizeAdd = bigger ? (mobile ? 60 : 30) : smaller ? -20 : 0;
     const multiplicator = mobile ? 0.5 : 1;
 
     let zIndex = 0;

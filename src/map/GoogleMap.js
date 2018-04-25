@@ -131,7 +131,7 @@ let GoogleMapComp = ({
       // enableRetinaIcons
       gridSize={mobile ? 10 : 40}
       styles={clusterStyles}
-      minimumClusterSize={mobile ? 10 : 100}
+      minimumClusterSize={mobile ? 100 : 100}
       // imageSizes={1}
       // imagePath={`${ICON_CDN}/cluster1.png`}
     >
@@ -183,7 +183,7 @@ let GoogleMapComp = ({
         zoomControlOptions: {
           position: google.maps.ControlPosition.RIGHT_TOP,
         },
-        minZoom: Math.min(4, zoom),
+        minZoom: Math.min(3, zoom),
         scrollwheel: false,
         maxZoom: 13,
       }}
