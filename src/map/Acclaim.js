@@ -11,18 +11,9 @@ import '../fonts/styles.css';
 import s from './styles.css';
 import Ink from 'react-ink';
 
-import {
-  ShareButtons,
-  ShareCounts,
-  generateShareIcon,
-} from 'react-share';
-const {
-  FacebookShareButton,
-  TwitterShareButton,
-} = ShareButtons;
-const {
-  FacebookShareCount,
-} = ShareCounts;
+import { ShareButtons, ShareCounts, generateShareIcon } from 'react-share';
+const { FacebookShareButton, TwitterShareButton } = ShareButtons;
+const { FacebookShareCount } = ShareCounts;
 
 import { onShowThankYou, onHideThankYou } from '../actions.js';
 import 'whatwg-fetch';
@@ -38,10 +29,13 @@ const styles = {
   },
   h2: {
     color: '#37bcd1',
-    textTransform: 'uppercase',
     fontWeight: 400,
     lineHeight: 1,
-    fontSize: 25,
+    fontSize: 12,
+    textAlign: 'left',
+  },
+  blue: {
+    color: '#37bcd1',
   },
   center: {
     textAlign: 'center',
@@ -70,9 +64,7 @@ const CursorWindowW = ({ myPos }) => {
     return null;
   }
   return (
-    <InfoWindow
-      options={{ disableAutoPan: false }}
-    >
+    <InfoWindow options={{ disableAutoPan: false }}>
       <div style={{ maxWidth: 200, textAlign: 'center', padding: 10 }}>
         Faites glisser le curseur bleu pour vous localiser sur la carte
       </div>
@@ -82,18 +74,25 @@ const CursorWindowW = ({ myPos }) => {
 
 const ShareIcons = ({ size, text, flexJustify = 'center' }) => {
   const websiteUrl = 'http://bit.ly/2r4Cdnv';
-  const facebookMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl}`;
-  const twitterMessage = `J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose ! Soutenez-le vous aussi : ${websiteUrl} pic.twitter.com/F65A33Mj7R`;
-  const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterMessage)}`;
+  const facebookMessage = `J'encourage les #DéfisRespire contre la #mucoviscidose ! Soutenez-les vous aussi : ${websiteUrl}`;
+  const twitterMessage = `J'encourage les #DéfisRespire contre la #mucoviscidose ! Soutenez-les vous aussi : ${websiteUrl} pic.twitter.com/F65A33Mj7R`;
+  const tweetIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+    twitterMessage,
+  )}`;
   return (
     <div style={{ display: 'flex', justifyContent: flexJustify, alignItems: 'center' }}>
       <span style={{ paddingRight: 5 }}>{text}</span>
-      <a style={{ paddingRight: 5 }} href={tweetIntentUrl} rel="noopener noreferrer" target="_blank" >
+      <a
+        style={{ paddingRight: 5 }}
+        href={tweetIntentUrl}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <TwitterIcon size={size} round />
       </a>
       <FacebookShareButton
         url={websiteUrl}
-        title="J'encourage Brian dans son #DefiDeMalade contre la #mucoviscidose"
+        title="J'encourage les #DéfisRespire contre la #mucoviscidose"
         description={facebookMessage}
         picture="https://d1vfuujltsw10o.cloudfront.net/Visuel_Partage_Carte.jpg"
       >
@@ -124,7 +123,9 @@ const ActionButton = ({ onClick }) => (
       // primary
       // label="J'encourage Brian"
       onClick={onClick}
-    >      J'encourage Brian
+    >
+      {' '}
+      J’ENCOURAGE LES DEFIS
       <Ink />
     </div>
   </div>
@@ -133,64 +134,98 @@ const ActionButton = ({ onClick }) => (
 const AcclaimIntroW = ({ onClick, showThankYou, onHideThankYou }) => {
   if (showThankYou) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '100%',
+        }}
+      >
         <div onClick={onHideThankYou} style={{ textAlign: 'right' }}>
           <IconButton>
-            <img alt="close" width={30} src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png" />
+            <img
+              alt="close"
+              width={30}
+              src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png"
+            />
           </IconButton>
         </div>
 
         <div style={{ paddingLeft: 20, paddingRight: 20 }}>
           <div style={styles.title}>
-            <h2 style={styles.h2} >Merci !</h2>
+            <h2 style={styles.h2}>Merci !</h2>
           </div>
           <p>Et hop, un encouragement de plus, merci à vous&nbsp;!</p>
-          <p style={{ paddingTop: 30 }}>Multipliez les encouragements pour Brian en partageant la carte&nbsp;!</p>
+          <p style={{ paddingTop: 30 }}>
+            Multipliez les encouragements pour Brian en partageant la carte&nbsp;!
+          </p>
           <div style={{ paddingTop: 50, textAlign: 'center', paddingBottom: 100 }}>
             <ShareIcons size={60} flexJustify="center" />
           </div>
-
-
         </div>
       </div>
-
     );
   }
   return (
     <div style={{ paddingLeft: 20, paddingRight: 20 }}>
       <div style={styles.title}>
         <div>
-          <img width={100} style={{ paddingRight: 20 }} src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png" alt="megaphone" />
+          <img
+            width={100}
+            style={{ paddingRight: 20 }}
+            src="https://d1vfuujltsw10o.cloudfront.net/icons/Megaphone_defiRespire.png"
+            alt="megaphone"
+          />
         </div>
         <div>
-          <h2 style={styles.h2} >Cours brian,<br />Cours !</h2>
+          <h2 style={styles.h2}>
+            <span style={{ textTransform: 'uppercase', fontSize: 25 }}>Respire</span> <br />{' '}
+            ensemble contre la Mucoviscidose
+          </h2>
         </div>
-
       </div>
-      <p>Brian arrive à Paris, et aura déjà parcouru plus de 900km.</p>
-      <p>Pour l&apos;encourager dans cette dernière ligne droite jusqu&apos;à
-           Calais, vous pouvez le soutenir symboliquement dès maintenant
-           en vous ajoutant sur cette carte.</p>
-      <p>Sinon il suffit de Tweeter votre soutien avec le hashtag <a style={{ color: '#37bcd1', textDecoration: 'none' }} target="_blank" href="https://twitter.com/search?q=%23defidemalade&lang=fr">#DefiDeMalade</a> en activant la géolocalisation</p>
+      <p>
+        Respire est une association qui à pour but de sensibiliser et de porter les projets sportifs
+        des personnes atteintes de la mucoviscidose.
+      </p>
+      <p>
+        Pour encourager les Défis Respire, vous pouvez les soutenir symboliquement dès maintenant en
+        vous ajoutant sur cette carte.
+      </p>
+      <p>
+        Sinon il suffit de Tweeter votre soutien avec le hashtag{' '}
+        <a
+          style={{ color: '#37bcd1', textDecoration: 'none' }}
+          target="_blank"
+          href="https://twitter.com/search?q=%23defirespire&lang=fr"
+        >
+          #DefiRespire
+        </a>{' '}
+        en activant la géolocalisation
+      </p>
       <ActionButton onClick={onClick} />
 
-      <div style={{ paddingTop: 50, textTransform: 'uppercase', fontWeight: 600, textAlign: 'right' }}>
+      <div
+        style={{ paddingTop: 50, textTransform: 'uppercase', fontWeight: 600, textAlign: 'right' }}
+      >
         <ShareIcons size={40} text={'Partager : '} flexJustify="flex-end" />
       </div>
     </div>
   );
 };
 
-const AcclaimIntro = connect(({ showThankYou }) => ({
-  showThankYou,
-}), { onHideThankYou })(AcclaimIntroW);
+const AcclaimIntro = connect(
+  ({ showThankYou }) => ({
+    showThankYou,
+  }),
+  { onHideThankYou },
+)(AcclaimIntroW);
 
 export { AcclaimIntro };
 
 class AcclaimForm extends React.Component {
-  state={
-  }
+  state = {};
 
   submitForm = () => {
     const { message, name, captchaCode } = this;
@@ -224,7 +259,7 @@ class AcclaimForm extends React.Component {
     });
     this.props.onShowThankYou();
     this.props.onFlip();
-  }
+  };
 
   render() {
     const { myPos, onFlip } = this.props;
@@ -232,25 +267,37 @@ class AcclaimForm extends React.Component {
 
     return (
       <div style={styles.form}>
-        <div onClick={onFlip} style={{ position: 'absolute', textAlign: 'right', top: 3, right: 3 }}>
+        <div
+          onClick={onFlip}
+          style={{ position: 'absolute', textAlign: 'right', top: 3, right: 3 }}
+        >
           <IconButton>
-            <img alt="close" width={30} src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png" />
+            <img
+              alt="close"
+              width={30}
+              src="https://d1vfuujltsw10o.cloudfront.net/icons/Close_btn.png"
+            />
           </IconButton>
         </div>
 
-        <h2 style={styles.h2} >Encouragez Brian</h2>
+        <h2 style={styles.h2}>Encouragez Brian</h2>
         <p>1. Votre emplacement</p>
 
-        {myPos ?
-          <div style={styles.lngLat}>{`latitude: ${myPos.lat.toFixed(2)}, longitude : ${myPos.lng.toFixed(2)}`}</div>
-        :
+        {myPos ? (
+          <div style={styles.lngLat}>{`latitude: ${myPos.lat.toFixed(
+            2,
+          )}, longitude : ${myPos.lng.toFixed(2)}`}</div>
+        ) : (
           <div
             style={{
               ...styles.geoTip,
               border: myPosEmptyErr ? '2px dashed rgb(244, 67, 54)' : '2px dashed #26B8D0',
             }}
-          >            Faites glisser le curseur pour vous localiser sur la carte</div>
-        }
+          >
+            {' '}
+            Faites glisser le curseur pour vous localiser sur la carte
+          </div>
+        )}
 
         <TextField
           defaultValue=""
@@ -287,9 +334,11 @@ class AcclaimForm extends React.Component {
           fullWidth
         />
 
-        <form >
+        <form>
           <ReCAPTCHA
-            ref={(el) => { this.captcha = el; }}
+            ref={(el) => {
+              this.captcha = el;
+            }}
             size="invisible"
             sitekey="6LcLkCIUAAAAADQJ490cCBc6KyuVuUxd54PZgciY"
             badge="bottomleft"
@@ -313,19 +362,26 @@ class AcclaimForm extends React.Component {
           </div>
         </form>
 
-        <div style={{ textAlign: 'center', textTransform: 'none', paddingTop: 36, paddingLeft: 40 }}>
-          <p style={{ fontSize: 10, lineHeight: 1 }}>{"Nous n'utiliserons pas vos informations personnelles."}</p>
-          <p style={{ fontSize: 10, lineHeight: 1 }}>{'Nous ne pourrons être tenus responsables du contenu de votre message.'}</p>
+        <div
+          style={{ textAlign: 'center', textTransform: 'none', paddingTop: 36, paddingLeft: 40 }}
+        >
+          <p style={{ fontSize: 10, lineHeight: 1 }}>
+            {"Nous n'utiliserons pas vos informations personnelles."}
+          </p>
+          <p style={{ fontSize: 10, lineHeight: 1 }}>
+            {'Nous ne pourrons être tenus responsables du contenu de votre message.'}
+          </p>
         </div>
-
-
       </div>
     );
   }
 }
 
-const AcclaimFormConnected = connect(state => ({
-  myPos: state.myPos,
-}), { onShowThankYou })(AcclaimForm);
+const AcclaimFormConnected = connect(
+  state => ({
+    myPos: state.myPos,
+  }),
+  { onShowThankYou },
+)(AcclaimForm);
 
 export { AcclaimFormConnected as AcclaimForm };
